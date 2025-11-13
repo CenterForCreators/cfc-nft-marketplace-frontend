@@ -71,17 +71,51 @@
 <!-- Render-hosted SDKs -->
 <script onload="try{window.xumm=new Xumm('eebd4c17-c3ef-435b-b891-89afb99e259e');}catch(e){console.error(e);}" src="https://xumm.app/assets/cdn/xumm.min.js"></script>
 <script src="https://cfc-faucet.onrender.com/sdk/xrpl-latest-min.js"></script>
-<style>/* CFC-AUTO-STYLE */
-  .server-waiting-url{ display:none !important; }
-</style>async function connectXumm(){
+
+<style>
+  /* CFC-AUTO-STYLE */
+  .server-waiting-url { display:none !important; }
+</style>
+
+<script>
+async function connectXumm(){
+  try{
+    localStorage.setItem('xumm_connect_pending', 'true');
+
+    if(window.xumm && window.xumm.authorize){
+      const res = await window.xumm.authorize();
+      if(res && res.me && res.me.account){
+        connectedAccount = res.me.account;
+
+        const connectBtn = document.getElementById('connectBtn');
+        const addrBadge = document.getElementById('addrBadge');
+
+        if(connectBtn){ 
+          connectBtn.textContent = "Connected"; 
+          connectBtn.disabled = false; 
+        }
+        if(addrBadge){ 
+          addrBadge.textContent = connectedAccount; 
+        }
+
+        if(typeof fetchBalances === "function"){
+          fetchBalances(connectedAccount);
+        }
+      }
+    }
+  }catch(e){
+    console.error(e);
+    if(window.toast) toast("Xaman connect failed");
+  }
+}
+</script>
 
 <!-- ✅ XUMM iPhone Deep-Link Fix -->
 <script>
 function openXummLink(payloadUUID) {
   try {
-    // Try opening the XUMM app directly (best for iPhone)
     window.location.href = `xumm://xapp?xrplsign&payload=${payloadUUID}`;
-    // Fallback: open web signer if app doesn’t open within 2 seconds
+
     setTimeout(() => {
       window.location.href = `https://xumm.app/sign/${payloadUUID}`;
     }, 2000);
