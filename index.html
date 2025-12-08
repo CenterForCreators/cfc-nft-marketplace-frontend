@@ -145,6 +145,17 @@
 <button class="btn secondary" id="navPurchases">My Purchases</button>
 <button class="btn secondary" id="navRedeem">Redeem</button>
 </div>
+  <!-- LIVE MINTED NFT MARKET FEED (DYNAMIC) -->
+<section id="cfc-market-live" style="padding:40px 0 10px 0;">
+  <h2 style="text-align:center;color:#fff;margin-bottom:20px;">
+    Live NFTs from CFC Creators
+  </h2>
+
+  <div id="cfc-market-grid"
+       style="display:flex;flex-wrap:wrap;gap:25px;justify-content:center;">
+    <!-- Filled by JavaScript -->
+  </div>
+</section>
 
 <section id="view-market">
   <div class="grid">
@@ -2027,6 +2038,51 @@ try {
       emailMsg.style.color = '#ff6b6b';
     }
   });
+</script>
+<script>
+async function loadCFCMarketplace() {
+  try {
+    const r = await fetch("https://cfc-nft-shared-mint-backend.onrender.com/api/market/all");
+    const items = await r.json();
+
+    const grid = document.getElementById("cfc-market-grid");
+    grid.innerHTML = "";
+
+    items.forEach(item => {
+      const card = `
+        <div style="
+          width:260px;
+          background:#111;
+          border-radius:12px;
+          padding:15px;
+          color:#fff;
+          text-align:center;
+        ">
+          <img 
+            src="https://gateway.pinata.cloud/ipfs/${item.image_cid}" 
+            style="width:100%;border-radius:10px;margin-bottom:10px;"
+          >
+
+          <h3 style="margin:8px 0;">${item.name}</h3>
+
+          <p style="font-size:14px;opacity:0.8;">
+            ${item.description || ""}
+          </p>
+
+          <p style="margin-top:10px;font-weight:bold;">
+            ${item.price_xrp} XRP
+          </p>
+        </div>
+      `;
+      grid.innerHTML += card;
+    });
+
+  } catch (e) {
+    console.error("Marketplace load error:", e);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadCFCMarketplace);
 </script>
 
 </body> 
