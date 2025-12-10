@@ -2086,6 +2086,7 @@ function sendHeight() {
 setInterval(sendHeight, 500);
 window.onload = sendHeight;
 </script>
+
 <script>
 async function loadCFCMarketplace() {
   try {
@@ -2111,34 +2112,35 @@ async function loadCFCMarketplace() {
             src="https://gateway.pinata.cloud/ipfs/${item.image_cid}" 
             style="width:100%;border-radius:10px;margin-bottom:10px;"
           >
-<h3 style="margin:8px 0;">${item.name}</h3>
 
-<p style="font-size:14px;opacity:0.8;">
-  ${item.description || ""}
-</p>
+          <h3 style="margin:8px 0;">${item.name}</h3>
 
-<p style="font-size:13px;margin-top:6px;opacity:0.7;">
-  Terms: ${item.terms || "N/A"}
-</p>
+          <p style="font-size:14px;opacity:0.8;">
+            ${item.description || ""}
+          </p>
 
-<p style="font-size:13px;margin-top:6px;opacity:0.7;">
-  Available: ${item.quantity || "1"}
-</p>
+          <p style="font-size:13px;margin-top:6px;opacity:0.7;">
+            Terms: ${item.terms || "N/A"}
+          </p>
 
-<p style="margin-top:10px;font-weight:bold;">
-  ${item.price_xrp} XRP<br>
-  ${item.price_rlusd} RLUSD
-</p>
+          <p style="font-size:13px;margin-top:6px;opacity:0.7;">
+            Available: ${item.quantity || "1"}
+          </p>
 
-<button onclick="payXRP(${item.id})"
-  style="margin-top:10px;padding:8px 12px;border-radius:8px;">
-  Pay XRP
-</button>
+          <p style="margin-top:10px;font-weight:bold;">
+            ${item.price_xrp} XRP<br>
+            ${item.price_rlusd} RLUSD
+          </p>
 
-<button onclick="payRLUSD(${item.id})"
-  style="margin-top:8px;padding:8px 12px;border-radius:8px;">
-  Pay RLUSD
-</button>
+          <button onclick="payXRP(${item.id})"
+            style="margin-top:10px;padding:8px 12px;border-radius:8px;cursor:pointer;">
+            Pay XRP
+          </button>
+
+          <button onclick="payRLUSD(${item.id})"
+            style="margin-top:8px;padding:8px 12px;border-radius:8px;cursor:pointer;">
+            Pay RLUSD
+          </button>
         </div>
       `;
       grid.innerHTML += card;
@@ -2148,7 +2150,7 @@ async function loadCFCMarketplace() {
     console.error("Marketplace load error:", e);
   }
 }
-<script>
+
 document.addEventListener("DOMContentLoaded", loadCFCMarketplace);
 
 async function payXRP(id) {
