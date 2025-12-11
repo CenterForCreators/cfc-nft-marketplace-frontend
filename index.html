@@ -2056,7 +2056,7 @@ try {
   async function loadCFCMarketplace() {
     try {
       const r = await fetch(
-        "https://cfc-nft-shared-mint-backend.onrender.com/api/market/all"
+        "https://cfc-marketplace-backend.onrender.com/api/market/all"
       );
       const items = await r.json();
 
@@ -2120,7 +2120,7 @@ try {
 
   async function payXRP(id) {
     const r = await fetch(
-      "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-xrp",
+      "https://cfc-marketplace-backend.onrender.com/api/market/pay-xrp",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -2133,7 +2133,7 @@ try {
 
   async function payRLUSD(id) {
     const r = await fetch(
-      "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-rlusd",
+    "https://cfc-marketplace-backend.onrender.com/api/market/pay-rlusd",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
