@@ -2053,71 +2053,74 @@ try {
   setInterval(sendHeight, 500);
   window.onload = sendHeight;
 
-  // Load live NFTs from the shared mint backend
-  async function loadCFCMarketplace() {
-    try {
-      const r = await fetch(
-        "https://cfc-nft-shared-mint-backend.onrender.com/api/market/all"
-      );
-      const items = await r.json();
+// Load live NFTs from the shared mint backend
+async function loadCFCMarketplace() {
+  try {
+    const r = await fetch(
+      "https://cfc-nft-shared-mint-backend.onrender.com/api/market/all"
+    );
+    const items = await r.json();
 
-      const grid = document.getElementById("cfc-market-grid");
-      grid.innerHTML = "";
+    const grid = document.getElementById("cfc-market-grid");
+    grid.innerHTML = "";
 
-      items.forEach(item => {
-        const card = `
-          <div style="
-            width:260px;
-            background:#111;
-            border-radius:12px;
-            padding:15px;
-            color:#fff;
-            text-align:center;
-          ">
-            <img 
-              src="https://gateway.pinata.cloud/ipfs/${item.image_cid}" 
-              style="width:100%;border-radius:10px;margin-bottom:10px;"
-            >
+    items.forEach(item => {
+      const card = `
+        <div class="live-nft-card"
+             data-rlusd="${item.price_rlusd || ""}"
+             style="
+               width:260px;
+               background:#111;
+               border-radius:12px;
+               padding:15px;
+               color:#fff;
+               text-align:center;
+             ">
+          <img 
+            src="https://gateway.pinata.cloud/ipfs/${item.image_cid}" 
+            style="width:100%;border-radius:10px;margin-bottom:10px;"
+          >
 
-            <h3 style="margin:8px 0;">${item.name}</h3>
+          <h3 style="margin:8px 0;">${item.name}</h3>
 
-            <p style="font-size:14px;opacity:0.8;">
-              ${item.description || ""}
-            </p>
+          <p style="font-size:14px;opacity:0.8;">
+            ${item.description || ""}
+          </p>
 
-            <p style="font-size:13px;margin-top:6px;opacity:0.7;">
-              Terms: ${item.terms || "N/A"}
-            </p>
+          <p style="font-size:13px;margin-top:6px;opacity:0.7;">
+            Terms: ${item.terms || "N/A"}
+          </p>
 
-            <p style="font-size:13px;margin-top:6px;opacity:0.7;">
-              Available: ${item.quantity || "1"}
-            </p>
+          <p style="font-size:13px;margin-top:6px;opacity:0.7;">
+            Available: ${item.quantity || "1"}
+          </p>
 
-            <p style="margin-top:10px;font-weight:bold;">
-              ${item.price_xrp} XRP<br>
-              ${item.price_rlusd} RLUSD
-            </p>
+          <p style="margin-top:10px;font-weight:bold;">
+            <span class="live-nft-xrp">${item.price_xrp} XRP</span><br>
+            ${item.price_rlusd} RLUSD
+          </p>
 
-            <button onclick="payXRP(${item.id})"
-              style="margin-top:10px;padding:8px 12px;border-radius:8px;cursor:pointer;">
-              Pay XRP
-            </button>
+          <button class="btn small secondary" onclick="payXRP(${item.id})"
+            style="margin-top:10px;padding:8px 12px;border-radius:8px;cursor:pointer;">
+            Pay XRP
+          </button>
 
-            <button onclick="payRLUSD(${item.id})"
-              style="margin-top:8px;padding:8px 12px;border-radius:8px;cursor:pointer;">
-              Pay RLUSD
-            </button>
-          </div>
-        `;
-        grid.innerHTML += card;
-      });
+          <button class="btn small" onclick="payRLUSD(${item.id})"
+            style="margin-top:8px;padding:8px 12px;border-radius:8px;cursor:pointer;">
+            Pay RLUSD
+          </button>
+        </div>
+      `;
+      grid.innerHTML += card;
+    });
 
-    } catch (e) {
-      console.error("Marketplace load error:", e);
-    }
+  } catch (e) {
+    console.error("Marketplace load error:", e);
   }
+}
 
-  document.addEventListener("DOMContentLoaded", loadCFCMarketplace);
+document.addEventListener("DOMContentLoaded", loadCFCMarketplace);
+
 
   async function payXRP(id) {
     const r = await fetch(
