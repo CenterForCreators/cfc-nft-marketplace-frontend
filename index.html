@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,64 +19,44 @@
 <meta content="Center for Creators NFT site — Faucet + Marketplace powered by CFC on XRPL." name="description"/>
 <!-- Render-hosted SDKs (so gateways don't block) -->
 <style>
-.divider{height:1px;background:var(--accent);opacity:0.6;margin:10px 0 14px 0;border-radius:999px}
+    .divider{height:1px;background:var(--accent);opacity:0.6;margin:10px 0 14px 0;border-radius:999px}
 
-:root { --bg:#0b1220; --card:#121a2b; --text:#f6f8ff; --muted:#9fb0d1; --accent:#7db8ff; --ok:#1fcf7c; --warn:#ffcc00; --err:#ff6b6b;}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
-a{color:var(--accent);text-decoration:none}
-.wrap{max-width:1100px;margin:0 auto;padding:22px}
-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}
-.brand{display:flex;align-items:center;gap:12px}
-.brand img{width:44px;height:44px;border-radius:10px;display:block;background:#7c3aed}
-h1{font-size:20px;margin:0;line-height:1.2}
-.btn{background:var(--accent);color:#091224;padding:10px 14px;border-radius:10px;border:0;font-weight:700;cursor:pointer}
-.btn.secondary{background:#cfe3ff;color:#041225}
-.btn.ghost{background:transparent;border:1px solid #2a3a60;color:var(--text)}
-.btn.small{padding:8px 10px;font-size:14px}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-
-.card{background:var(--card);border:1px solid #202c45;border-radius:16px;padding:18px}
-
-/* Match live NFTs to static NFT card width */
-.live-nft-card { max-width: 280px; }
-
-/* Read-More text handling — safe addition */
-.readmore-text {
-  overflow:hidden;
-  max-height:60px;
-  transition:max-height .3s ease;
-}
-.readmore-text.expanded {
-  max-height:500px;
-}
-
-/* Term / Quantity alignment */
-.nft-meta { font-size:13px; color:var(--muted); margin-top:6px; }
-
-.muted{color:var(--muted)}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.nft-img{width:100%;height:180px;background:#0e1527;border-radius:12px;object-fit:cover;display:block}
-
-input[type="email"], input[type="text"]{
-  width:100%;outline:none;padding:10px;border-radius:10px;
-  border:1px solid #2a3a60;background:#0e1527;color:#e8f0ff
-}
-
-.kv{display:flex;gap:10px;align-items:center}
-.kv div:first-child{width:140px;color:#9fb0d1}
-footer{margin-top:30px;color:#9fb0d1;font-size:14px}
-.status{margin-top:8px;font-size:14px}
-.status.ok{color:var(--ok)} .status.warn{color:var(--warn)} .status.err{color:var(--err)}
-.toast{position:fixed;right:16px;bottom:16px;background:#132b1f;color:#caffa9;border:1px solid #1b5e2c;border-radius:12px;padding:12px 14px;display:none;z-index:9999}
-.spinner{display:none;width:16px;height:16px;border-radius:50%;border:3px solid #2a3a60;border-top-color:var(--accent);animation:spin 0.9s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#connectBtn,#claimBtn{pointer-events:auto;opacity:1}
-.captcha{display:flex;gap:8px;align-items:center}
-.captcha .tag{background:#1a2745;color:#cfe3ff;padding:4px 8px;border-radius:999px;font-size:12px}
-.note{font-size:12px;color:#9fb0d1;margin-top:6px}
-</style>
+    :root { --bg:#0b1220; --card:#121a2b; --text:#f6f8ff; --muted:#9fb0d1; --accent:#7db8ff; --ok:#1fcf7c; --warn:#ffcc00; --err:#ff6b6b;}
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+    a{color:var(--accent);text-decoration:none}
+    .wrap{max-width:1100px;margin:0 auto;padding:22px}
+    header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{width:44px;height:44px;border-radius:10px;display:block;background:#7c3aed}
+    h1{font-size:20px;margin:0;line-height:1.2}
+    .btn{background:var(--accent);color:#091224;padding:10px 14px;border-radius:10px;border:0;font-weight:700;cursor:pointer}
+    .btn.secondary{background:#cfe3ff;color:#041225}
+    .btn.ghost{background:transparent;border:1px solid #2a3a60;color:var(--text)}
+    .btn.small{padding:8px 10px;font-size:14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{background:var(--card);border:1px solid #202c45;border-radius:16px;padding:18px}
+  /* Match live NFTs to static NFT card width */
+.live-nft-card { max-width:280px; }
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .nft-img{width:100%;height:180px;background:#0e1527;border-radius:12px;object-fit:cover;display:block}
+    input[type="email"], input[type="text"]{width:100%;outline:none;padding:10px;border-radius:10px;border:1px solid #2a3a60;background:#0e1527;color:#e8f0ff}
+    .kv{display:flex;gap:10px;align-items:center}
+    .kv div:first-child{width:140px;color:#9fb0d1}
+    footer{margin-top:30px;color:#9fb0d1;font-size:14px}
+    .status{margin-top:8px;font-size:14px}
+    .status.ok{color:var(--ok)} .status.warn{color:var(--warn)} .status.err{color:var(--err)}
+    .toast{position:fixed;right:16px;bottom:16px;background:#132b1f;color:#caffa9;border:1px solid #1b5e2c;border-radius:12px;padding:12px 14px;display:none;z-index:9999}
+    .spinner{display:none;width:16px;height:16px;border-radius:50%;border:3px solid #2a3a60;border-top-color:var(--accent);animation:spin 0.9s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    /* ensure buttons clickable even in gateway viewer */
+    #connectBtn,#claimBtn{pointer-events:auto;opacity:1}
+    .captcha{display:flex;gap:8px;align-items:center}
+    .captcha .tag{background:#1a2745;color:#cfe3ff;padding:4px 8px;border-radius:999px;font-size:12px}
+    .note{font-size:12px;color:#9fb0d1;margin-top:6px}
+  </style>
 <script>
     // ------- CONFIG (single block) -------
     window.CONFIG = { USE_CORS_PROXY: true, CORS_PROXY: 'https://cors.isomorphic-git.org/', 
