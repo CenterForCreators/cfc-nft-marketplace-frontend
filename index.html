@@ -2052,111 +2052,114 @@ try {
   }
   setInterval(sendHeight, 500);
   window.onload = sendHeight;
-
 <script>
-  // Load live NFTs from the shared mint backend
-  async function loadCFCMarketplace() {
-    try {
-      const r = await fetch(
-        "https://cfc-nft-shared-mint-backend.onrender.com/api/market/all"
-      );
-      const items = await r.json();
+// Load live NFTs from the shared mint backend
+async function loadCFCMarketplace() {
+  try {
+    const r = await fetch(
+      "https://cfc-nft-shared-mint-backend.onrender.com/api/market/all"
+    );
+    const items = await r.json();
 
-      // NEW: grab latest XRP price once (uses the existing helper script)
-      if (typeof cfcFetchXrpUsd === "function") {
-        await cfcFetchXrpUsd();
-      }
-
-      const grid = document.getElementById("cfc-market-grid");
-      grid.innerHTML = "";
-
-      items.forEach(item => {
-        // Decide what XRP price to show:
-        // 1) use stored price_xrp if valid
-        // 2) otherwise convert RLUSD → XRP using live rate
-        let xrpDisplay = "";
-        if (item.price_xrp && !isNaN(item.price_xrp)) {
-          xrpDisplay = item.price_xrp;
-        } else if (item.price_rlusd && typeof cfcToXrp === "function") {
-          xrpDisplay = cfcToXrp(Number(item.price_rlusd));
-        }
-
-        const card = `
-          <div class="card live-nft-card"
-               data-rlusd="${item.price_rlusd || ""}">
-            <img 
-              src="https://gateway.pinata.cloud/ipfs/${item.image_cid}" 
-              class="nft-img"
-              alt="${item.name || "CFC NFT"}"
-            >
-
-            <h3 style="margin:8px 0;">${item.name}</h3>
-
-            <p style="font-size:14px;opacity:0.8;">
-              ${item.description || ""}
-            </p>
-
-            <p style="font-size:13px;margin-top:6px;opacity:0.7;">
-              Terms: ${item.terms || "N/A"}
-            </p>
-
-            <p style="font-size:13px;margin-top:6px;opacity:0.7;">
-              Available: ${item.quantity || "1"}
-            </p>
-
-            <p style="margin-top:10px;font-weight:bold;">
-              <span class="live-nft-xrp">${xrpDisplay} XRP</span><br>
-              ${item.price_rlusd || ""} RLUSD
-            </p>
-
-            <button class="btn small secondary"
-                    onclick="payXRP(${item.id})"
-                    style="margin-top:10px;">
-              Pay XRP
-            </button>
-
-            <button class="btn small"
-                    onclick="payRLUSD(${item.id})"
-                    style="margin-top:8px;">
-              Pay RLUSD
-            </button>
-          </div>
-        `;
-        grid.innerHTML += card;
-      });
-
-    } catch (e) {
-      console.error("Marketplace load error:", e);
+    // Live XRP price fetch (works with your existing helper)
+    if (typeof cfcFetchXrpUsd === "function") {
+      await cfcFetchXrpUsd();
     }
-  }
 
-  document.addEventListener("DOMContentLoaded", loadCFCMarketplace);
+    const grid = document.getElementById("cfc-market-grid");
+    grid.innerHTML = "";
 
-  async function payXRP(id) {
-    const r = await fetch(
-      "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-xrp",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
+    items.forEach(item => {
+      // Show correct XRP price:
+      // 1) price_xrp if valid
+      // 2) otherwise convert RLUSD → XRP with live price
+      let xrpDisplay = "";
+      if (item.price_xrp && !isNaN(item.price_xrp)) {
+        xrpDisplay = item.price_xrp;
+      } else if (item.price_rlusd && typeof cfcToXrp === "function") {
+        xrpDisplay = cfcToXrp(Number(item.price_rlusd));
       }
-    );
-    const j = await r.json();
-    if (j.link) window.open(j.link, "_blank");
-  }
 
-  async function payRLUSD(id) {
-    const r = await fetch(
-      "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-rlusd",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      }
-    );
-    const j = await r.json();
-    if (j.link) window.open(j.link, "_blank");
+      const card = `
+        <div class="card live-nft-card"
+             data-rlusd="${item.price_rlusd || ""}">
+          
+          <img 
+            src="https://gateway.pinata.cloud/ipfs/${item.image_cid}"
+            class="nft-img"
+            style="width:100%;height:180px;object-fit:cover;border-radius:10px;"
+            alt="${item.name || "CFC NFT"}"
+          >
+
+          <h3 style="margin:8px 0;">${item.name}</h3>
+
+          <p style="font-size:14px;opacity:0.8;">
+            ${item.description || ""}
+          </p>
+
+          <p style="font-size:13px;margin-top:6px;opacity:0.7;">
+            Terms: ${item.terms || "N/A"}
+          </p>
+
+          <p style="font-size:13px;margin-top:6px;opacity:0.7;">
+            Available: ${item.quantity || "1"}
+          </p>
+
+          <p style="margin-top:10px;font-weight:bold;">
+            <span class="live-nft-xrp">${xrpDisplay} XRP</span><br>
+            ${item.price_rlusd || ""} RLUSD
+          </p>
+
+          <button class="btn small secondary"
+                  onclick="payXRP(${item.id})"
+                  style="margin-top:10px;">
+            Pay XRP
+          </button>
+
+          <button class="btn small"
+                  onclick="payRLUSD(${item.id})"
+                  style="margin-top:8px;">
+            Pay RLUSD
+          </button>
+        </div>
+      `;
+
+      grid.innerHTML += card;
+    });
+
+  } catch (e) {
+    console.error("Marketplace load error:", e);
   }
+}
+
+document.addEventListener("DOMContentLoaded", loadCFCMarketplace);
+
+// Payment handlers (unchanged)
+async function payXRP(id) {
+  const r = await fetch(
+    "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-xrp",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id })
+    }
+  );
+  const j = await r.json();
+  if (j.link) window.open(j.link, "_blank");
+}
+
+async function payRLUSD(id) {
+  const r = await fetch(
+    "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-rlusd",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id })
+    }
+  );
+  const j = await r.json();
+  if (j.link) window.open(j.link, "_blank");
+}
 </script>
 
 </body>
