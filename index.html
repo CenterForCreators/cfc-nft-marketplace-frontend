@@ -2203,6 +2203,76 @@ setInterval(cfcRefreshXrp, 20000);
 // Initial load
 document.addEventListener("DOMContentLoaded", cfcRefreshXrp);
 </script>
+<script>
+/* =====================================
+   1) RESTORE FONT (NO LAYOUT CHANGE)
+   ===================================== */
+document.addEventListener("DOMContentLoaded", () => {
+  document.body.style.fontFamily =
+    "system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif";
+});
+
+/* =====================================
+   2) RESTORE BUTTON COLORS YOU LIKED
+   (NO SIZE OR SPACING CHANGES)
+   ===================================== */
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".btn").forEach(btn => {
+    btn.style.borderRadius = "10px";
+    btn.style.fontWeight = "700";
+  });
+
+  document.querySelectorAll(".btn.secondary").forEach(btn => {
+    btn.style.background = "#cfe3ff";
+    btn.style.color = "#041225";
+  });
+});
+
+/* =====================================
+   3) REAL XRP PRICE UPDATER (SAFE)
+   ===================================== */
+
+/* cached price */
+let cfcXrpUsd = null;
+
+/* fetch XRP price using proxy so it works inside iframe */
+async function cfcFetchXrpUsd() {
+  try {
+    const res = await fetch(
+      "https://cors.isomorphic-git.org/https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd"
+    );
+    const data = await res.json();
+    cfcXrpUsd = data.ripple.usd;
+  } catch (e) {
+    console.warn("XRP price fetch failed (proxy). Keeping previous value.");
+  }
+}
+
+/* convert RLUSD → XRP */
+function cfcToXrp(rlusd) {
+  if (!cfcXrpUsd) return "—";
+  return (rlusd / cfcXrpUsd).toFixed(2);
+}
+
+/* update all visible NFT XRP prices */
+async function cfcRefreshXrpPrices() {
+  await cfcFetchXrpUsd();
+
+  document.querySelectorAll("[data-rlusd]").forEach(card => {
+    const rl = Number(card.dataset.rlusd || 0);
+    const label = card.querySelector(".live-nft-xrp");
+    if (label) {
+      label.textContent = `${cfcToXrp(rl)} XRP`;
+    }
+  });
+}
+
+/* refresh every 20 seconds */
+setInterval(cfcRefreshXrpPrices, 20000);
+
+/* run once on page load */
+document.addEventListener("DOMContentLoaded", cfcRefreshXrpPrices);
+</script>
 
 </body>
 </html>
