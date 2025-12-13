@@ -2085,9 +2085,7 @@ try {
   function cfc_renderNFT(it){
     const img = `https://gateway.pinata.cloud/ipfs/${it.image_cid}`;
 
-    const xrp = it.price_xrp && !isNaN(it.price_xrp)
-      ? it.price_xrp
-      : cfc_calcXrp(Number(it.price_rlusd || 0));
+    const xrp = cfc_calcXrp(Number(it.price_rlusd || 0));
 
     return `
       <div class="card live-nft-card"
