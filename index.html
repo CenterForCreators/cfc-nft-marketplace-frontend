@@ -2096,9 +2096,10 @@ try {
     }
     .cfc-toggle {
       cursor: pointer;
-      text-decoration: underline;
       display: inline-block;
-      margin-top: 6px;
+      margin-top: 4px;
+      color: #6b5cff; /* matches creator page */
+      font-weight: 500;
     }
   `;
   document.head.appendChild(readMoreStyle);
@@ -2121,20 +2122,32 @@ try {
 
         <h3 style="margin:12px 0 4px;">${it.name}</h3>
 
+        <!-- DESCRIPTION -->
         <div id="desc-${it.id}" class="muted cfc-clamp">
           ${it.description || ""}
         </div>
-        <span id="desc-${it.id}-btn" class="muted cfc-toggle"
-          onclick="toggleReadMore('desc-${it.id}')">Read more</span>
+        <span id="desc-${it.id}-btn"
+          class="cfc-toggle"
+          onclick="toggleReadMore('desc-${it.id}')">
+          Read more
+        </span>
 
-        <div class="muted" style="margin-top:10px;white-space:pre-wrap;">
-          <strong>Terms:</strong><br>
-          <div id="terms-${it.id}" class="muted cfc-clamp">
-            ${it.terms || "—"}
-          </div>
-          <span id="terms-${it.id}-btn" class="muted cfc-toggle"
-            onclick="toggleReadMore('terms-${it.id}')">Read more</span>
+        <!-- TERMS -->
+        <div class="muted" style="margin-top:12px;">
+          <strong>Terms:</strong>
         </div>
+
+        <div id="terms-${it.id}"
+          class="muted cfc-clamp"
+          style="white-space:pre-wrap;">
+          ${it.terms || "—"}
+        </div>
+
+        <span id="terms-${it.id}-btn"
+          class="cfc-toggle"
+          onclick="toggleReadMore('terms-${it.id}')">
+          Read more
+        </span>
 
         <div class="muted" style="margin-top:6px;">
           Quantity: ${it.quantity_remaining}
@@ -2156,50 +2169,6 @@ try {
       </div>
     `;
   }
-
-  async function cfc_load_market(){
-    await cfc_fetchXrpUsd();
-    const grid = document.getElementById("cfc-market-grid");
-    if(!grid) return;
-
-    const r = await fetch(MARKET_API);
-    const items = await r.json();
-    grid.innerHTML = items.map(cfc_renderNFT).join("");
-    sendHeight();
-  }
-
-  async function cfc_pay_xrp(id){
-    const r = await fetch(MARKET_PAY_XRP,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ id })
-    });
-    const j = await r.json();
-    if(j.link) window.open(j.link,"_blank");
-  }
-
-  async function cfc_pay_rlusd(id){
-    const r = await fetch(MARKET_PAY_RLUSD,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ id })
-    });
-    const j = await r.json();
-    if(j.link) window.open(j.link,"_blank");
-  }
-
-  document.addEventListener("DOMContentLoaded", cfc_load_market);
-
-  setInterval(async ()=>{
-    await cfc_fetchXrpUsd();
-    document.querySelectorAll(".live-nft-card").forEach(card=>{
-      const el = card.querySelector(".live-nft-xrp");
-      if(!el) return;
-      const rl = Number(card.dataset.rlusd || 0);
-      el.textContent = `${cfc_calcXrp(rl)} XRP`;
-    });
-  }, 20000);
-</script>
-
+</script> 
 </body>
 </html>
