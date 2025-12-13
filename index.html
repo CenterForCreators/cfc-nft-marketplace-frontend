@@ -54,7 +54,30 @@
     .captcha{display:flex;gap:8px;align-items:center}
     .captcha .tag{background:#1a2745;color:#cfe3ff;padding:4px 8px;border-radius:999px;font-size:12px}
     .note{font-size:12px;color:#9fb0d1;margin-top:6px}
-  </style>
+   /* --- CFC BUTTON COLOR OVERRIDES --- */
+
+  /* My Purchases = GREEN */
+  .btn.my-purchases {
+    background-color: #41b649 !important;
+    border-color: #41b649 !important;
+    color: #ffffff !important;
+  }
+
+  .btn.my-purchases:hover {
+    background-color: #37a03f !important;
+  }
+
+  /* Redeem = ORANGE */
+  .btn.redeem {
+    background-color: #ff8c1a !important;
+    border-color: #ff8c1a !important;
+    color: #ffffff !important;
+  }
+
+  .btn.redeem:hover {
+    background-color: #e67600 !important;
+  }
+</style>
 <script>
     // ------- CONFIG (single block) -------
     window.CONFIG = { USE_CORS_PROXY: true, CORS_PROXY: 'https://cors.isomorphic-git.org/', 
