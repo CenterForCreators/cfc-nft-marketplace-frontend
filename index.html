@@ -2179,7 +2179,11 @@ function cfc_renderNFT(it){
     : cfc_calcXrp(Number(it.price_rlusd||0));
 
   return `
-    <div class="card live-nft-card" 
+   <div class="card live-nft-card"
+     data-id="${it.id}"
+     data-rlusd="${it.price_rlusd}"
+     data-fixed-xrp="${it.price_xrp ? "true" : "false"}">
+
          data-id="${it.id}"
          data-rlusd="${it.price_rlusd}">
       
@@ -2258,11 +2262,16 @@ async function cfc_load_market(){
 setInterval(async ()=>{
   await cfc_fetchXrpUsd();
   document.querySelectorAll(".live-nft-card").forEach(card=>{
-    const rl = Number(card.dataset.rlusd||0);
-    const x = cfc_calcXrp(rl);
-    const el = card.querySelector(".live-nft-xrp");
-    if(el) el.textContent = `${x} XRP`;
-  });
+  const el = card.querySelector(".live-nft-xrp");
+  if(!el) return;
+
+  // ONLY recalc if this NFT does NOT have a fixed XRP price
+  if(card.dataset.fixedXrp === "true") return;
+
+  const rl = Number(card.dataset.rlusd || 0);
+  const x = cfc_calcXrp(rl);
+  el.textContent = `${x} XRP`;
+});
 }, 20000);
 
 // --- Initialize ---
