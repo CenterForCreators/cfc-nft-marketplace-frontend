@@ -2169,7 +2169,6 @@ function cfc_calcXrp(usd){
   return (usd / window.cfc_xrp_usd).toFixed(2);
 }
 
-// --- Render 1 NFT card ---
 function cfc_renderNFT(it){
   const img = `https://gateway.pinata.cloud/ipfs/${it.image_cid}`;
 
@@ -2183,9 +2182,6 @@ function cfc_renderNFT(it){
      data-id="${it.id}"
      data-rlusd="${it.price_rlusd}"
      data-fixed-xrp="${it.price_xrp ? "true" : "false"}">
-
-         data-id="${it.id}"
-         data-rlusd="${it.price_rlusd}">
       
       <img class="nft-img" src="${img}" alt="${it.name}">
       
@@ -2195,12 +2191,12 @@ function cfc_renderNFT(it){
         ${it.description || ""}
       </div>
 
-     <div class="muted" style="white-space:pre-wrap;">
-  <strong>Terms:</strong><br>
-  ${it.terms || "—"}
-</div>
+      <div class="muted" style="white-space:pre-wrap;">
+        <strong>Terms:</strong><br>
+        ${it.terms || "—"}
+      </div>
 
-     <div class="muted" style="margin-top:6px;">Quantity: ${it.quantity_remaining}</div>
+      <div class="muted" style="margin-top:6px;">Quantity: ${it.quantity_remaining}</div>
 
       <div class="row" style="justify-content:space-between;margin-top:14px;">
         <div>
@@ -2218,65 +2214,3 @@ function cfc_renderNFT(it){
     </div>
   `;
 }
-
-// --- Handle payments ---
-async function cfc_pay_xrp(id){
-  const r = await fetch(MARKET_PAY_XRP, {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ id })
-  });
-  const j = await r.json();
-  if(j.link) window.open(j.link, "_blank");
-}
-
-async function cfc_pay_rlusd(id){
-  const r = await fetch(MARKET_PAY_RLUSD, {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ id })
-  });
-  const j = await r.json();
-  if(j.link) window.open(j.link, "_blank");
-}
-
-// --- Load all NFTs ---
-async function cfc_load_market(){
-  await cfc_fetchXrpUsd();
-
-  const grid = document.getElementById("cfc-market-grid");
-  if(!grid) return;
-
-  const r = await fetch(MARKET_API);
-  const items = await r.json();
-
-  if(!items.length){
-    grid.innerHTML = "<div class='muted'>No NFTs yet.</div>";
-    return;
-  }
-
-  grid.innerHTML = items.map(cfc_renderNFT).join("");
-}
-
-// --- Price auto-refresh every 20s ---
-setInterval(async ()=>{
-  await cfc_fetchXrpUsd();
-  document.querySelectorAll(".live-nft-card").forEach(card=>{
-  const el = card.querySelector(".live-nft-xrp");
-  if(!el) return;
-
-  // ONLY recalc if this NFT does NOT have a fixed XRP price
-  if(card.dataset.fixedXrp === "true") return;
-
-  const rl = Number(card.dataset.rlusd || 0);
-  const x = cfc_calcXrp(rl);
-  el.textContent = `${x} XRP`;
-});
-}, 20000);
-
-// --- Initialize ---
-document.addEventListener("DOMContentLoaded", cfc_load_market);
-</script>
-
-</body>
-</html>
