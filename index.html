@@ -2191,7 +2191,10 @@ function cfc_renderNFT(it){
         ${it.description || ""}
       </div>
 
-      <div class="muted">Terms: ${it.terms || "—"}</div>
+     <div class="muted" style="white-space:pre-wrap;">
+  <strong>Terms:</strong><br>
+  ${it.terms || "—"}
+</div>
 
      <div class="muted" style="margin-top:6px;">Quantity: ${it.quantity_remaining}</div>
 
