@@ -2120,19 +2120,29 @@ try {
 
         <h3 style="margin:12px 0 4px;">${it.name}</h3>
 
+        <!-- DESCRIPTION -->
         <div id="desc-${it.id}" class="muted cfc-clamp">
           ${it.description || ""}
         </div>
-        <span id="desc-${it.id}-btn" class="cfc-toggle"
-          onclick="toggleReadMore('desc-${it.id}')">Read more</span>
+        <span id="desc-${it.id}-btn"
+          class="cfc-toggle"
+          onclick="toggleReadMore('desc-${it.id}')">
+          Read more
+        </span>
 
-        <div class="muted" style="margin-top:12px;"><strong>Terms:</strong></div>
-
-        <div id="terms-${it.id}" class="muted cfc-clamp" style="white-space:pre-wrap;">
+        <!-- TERMS (FIXED ALIGNMENT + NO EMPTY LINE) -->
+        <div id="terms-${it.id}"
+          class="muted cfc-clamp"
+          style="white-space:pre-wrap; margin-top:12px;">
+          <strong>Terms:</strong>
           ${it.terms || "—"}
         </div>
-        <span id="terms-${it.id}-btn" class="cfc-toggle"
-          onclick="toggleReadMore('terms-${it.id}')">Read more</span>
+
+        <span id="terms-${it.id}-btn"
+          class="cfc-toggle"
+          onclick="toggleReadMore('terms-${it.id}')">
+          Read more
+        </span>
 
         <div class="muted" style="margin-top:6px;">
           Quantity: ${it.quantity_remaining}
