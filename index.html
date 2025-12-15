@@ -2150,6 +2150,16 @@ ${it.description || ""}
         <span id="desc-${it.id}-btn"
           class="cfc-toggle"
           onclick="toggleReadMore('desc-${it.id}')">Read more</span>
+          
+${it.website ? `
+  <div class="muted" style="margin-top:6px;">
+    <a href="${it.website}"
+       target="_blank"
+       rel="noopener noreferrer">
+      Creator website →
+    </a>
+  </div>
+` : ""}
 
         <div id="terms-${it.id}"
           class="muted cfc-clamp"
