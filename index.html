@@ -458,37 +458,42 @@ async function buyWithXRP(item){
 
     function hexToString(hex){ try{ if (!hex) return ''; const clean = hex.startsWith('0x') ? hex.slice(2) : hex; return decodeURIComponent(clean.replace(/(..)/g,'%$1')) }catch(e){ return '' } }
 
-    async function loadMyPurchases(){
-      if (!connectedAccount){ document.getElementById('purchasesGrid').innerHTML = '<div class="muted">Connect your wallet to see purchases.</div>'; return }
-      await ensureConnected()
-      const resp = await client.request({ command:'account_nfts', account: connectedAccount })
-      const items = (resp.result.account_nfts||[]).filter(n => n.Issuer === CONFIG.CFC_ISSUER)
-      if (!items.length){ document.getElementById('purchasesGrid').innerHTML = '<div class="muted">No CFC-issued NFTs found in this wallet.</div>'; return }
-      const grid = items.map(n => {
-        const uri = hexToString(n.URI)
-        return `
-          <div class="card">
-            <div class="nft-img" style="display:flex;align-items:center;justify-content:center;color:#9fb0d1">Owned NFT</div>
-            <div class="kv"><div>Token ID</div><div style="word-break:break-all">${n.NFTokenID}</div></div>
-            <div class="kv"><div>Issuer</div><div>${n.Issuer}</div></div>
-            ${uri ? `<div class="kv"><div>Metadata</div><div><a href="${uri}" target="_blank" rel="noreferrer">Open</a></div></div>` : ''}
-            <div class="row" style="margin-top:10px">
-              <button class="btn small" onclick="document.getElementById('redeemTokenId').value='${n.NFTokenID}'; switchView('redeem');">Redeem</button>
-            </div>
-          </div>`
-      }).join('')
-      document.getElementById('purchasesGrid').innerHTML = grid
+   async function loadMyPurchases(){
+  const grid = document.getElementById('purchasesGrid');
+
+  if (!connectedAccount){
+    grid.innerHTML = '<div class="muted">Connect your wallet to see purchases.</div>';
+    return;
+  }
+
+  try {
+    const resp = await fetch(
+      `https://cfc-nft-shared-mint-backend.onrender.com/api/orders/by-wallet/${connectedAccount}`
+    );
+
+    const orders = await resp.json();
+
+    if (!orders.length){
+      grid.innerHTML = '<div class="muted">No purchases found for this wallet.</div>';
+      return;
     }
 
-    document.getElementById('redeemCheck').addEventListener('click', async () => {
-      const id = document.getElementById('redeemTokenId').value.trim()
-      if (!id){ document.getElementById('redeemResult').textContent = 'Enter a Token ID.'; return }
-      if (!connectedAccount){ document.getElementById('redeemResult').textContent = 'Connect your wallet first.'; return }
-      await ensureConnected()
-      const resp = await client.request({ command:'account_nfts', account: connectedAccount })
-      const owned = (resp.result.account_nfts||[]).some(n => n.NFTokenID === id)
-      document.getElementById('redeemResult').textContent = owned ? '✅ Ownership verified. You can proceed to redeem this NFT.' : '❌ This wallet does not currently hold that Token ID.'
-    })
+    grid.innerHTML = orders.map(o => `
+      <div class="card">
+        <img class="nft-img" src="https://gateway.pinata.cloud/ipfs/${o.image_cid}" />
+        <h3 style="margin:10px 0">${o.name}</h3>
+        <div class="muted">Status: ${o.status}</div>
+        <div class="muted">Purchased: ${new Date(o.created_at).toLocaleDateString()}</div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn small" disabled>Redeem</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    console.error(e);
+    grid.innerHTML = '<div class="muted">Failed to load purchases.</div>';
+  }
+}
 
     document.getElementById('emailSubmit').addEventListener('click', () => {
       const email = document.getElementById('emailInput').value.trim()
