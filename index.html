@@ -264,14 +264,20 @@
 <section id="view-redeem" style="display:none">
   <input type="hidden" id="redeemOrderId">
 </section>
-
-    document.getElementById('emailSubmit').addEventListener('click', () => {
-      const email = document.getElementById('emailInput').value.trim()
-      const box = document.getElementById('emailMsg')
-      if(!/.+@.+\..+/.test(email)){ box.textContent='Please enter a valid email.'; return }
-      const u = new URL(CONFIG.EMAIL_FALLBACK_URL); u.searchParams.set('email', email); window.open(u.toString(), '_blank')
-      box.textContent='Opening contact page…'
-    })
+<script>
+document.getElementById('emailSubmit').addEventListener('click', () => {
+  const email = document.getElementById('emailInput').value.trim()
+  const box = document.getElementById('emailMsg')
+  if(!/.+@.+\..+/.test(email)){
+    box.textContent = 'Please enter a valid email.'
+    return
+  }
+  const u = new URL(CONFIG.EMAIL_FALLBACK_URL)
+  u.searchParams.set('email', email)
+  window.open(u.toString(), '_blank')
+  box.textContent = 'Opening contact page…'
+})
+</script>
 
    document.getElementById('connectBtn').addEventListener('click', connectXaman)
 document.getElementById('buy1rlusd').addEventListener('click', () => buyWithRLUSD(CONFIG.ITEMS[0]))
