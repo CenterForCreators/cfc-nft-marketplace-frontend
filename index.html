@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -277,40 +276,20 @@ document.getElementById('emailSubmit').addEventListener('click', () => {
   window.open(u.toString(), '_blank')
   box.textContent = 'Opening contact page…'
 })
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-
-  const connectBtn = document.getElementById('connectBtn')
-  if (connectBtn) connectBtn.addEventListener('click', connectXaman)
-
-  const buy1rlusd = document.getElementById('buy1rlusd')
-  if (buy1rlusd) buy1rlusd.addEventListener('click', () => buyWithRLUSD(CONFIG.ITEMS[0]))
-
-  const buy2rlusd = document.getElementById('buy2rlusd')
-  if (buy2rlusd) buy2rlusd.addEventListener('click', () => buyWithRLUSD(CONFIG.ITEMS[1]))
-
-  const buy3rlusd = document.getElementById('buy3rlusd')
-  if (buy3rlusd) buy3rlusd.addEventListener('click', () => buyWithRLUSD(CONFIG.ITEMS[2]))
-
-  const buy1xrp = document.getElementById('buy1xrp')
-  if (buy1xrp) buy1xrp.addEventListener('click', () => buyWithXRP(CONFIG.ITEMS[0]))
-
-  const buy2xrp = document.getElementById('buy2xrp')
-  if (buy2xrp) buy2xrp.addEventListener('click', () => buyWithXRP(CONFIG.ITEMS[1]))
-
-  const buy3xrp = document.getElementById('buy3xrp')
-  if (buy3xrp) buy3xrp.addEventListener('click', () => buyWithXRP(CONFIG.ITEMS[2]))
-
-  const claimBtn = document.getElementById('claimBtn')
-  if (claimBtn) claimBtn.addEventListener('click', claimFaucet)
-
-  if (typeof switchView === 'function') {
-    switchView('market')
-  }
-
-})
 </script>
 
+   document.getElementById('connectBtn').addEventListener('click', connectXaman)
+document.getElementById('buy1rlusd').addEventListener('click', () => buyWithRLUSD(CONFIG.ITEMS[0]))
+document.getElementById('buy2rlusd').addEventListener('click', () => buyWithRLUSD(CONFIG.ITEMS[1]))
+document.getElementById('buy3rlusd').addEventListener('click', () => buyWithRLUSD(CONFIG.ITEMS[2]))
+document.getElementById('buy1xrp').addEventListener('click', () => buyWithXRP(CONFIG.ITEMS[0]))
+document.getElementById('buy2xrp').addEventListener('click', () => buyWithXRP(CONFIG.ITEMS[1]))
+document.getElementById('buy3xrp').addEventListener('click', () => buyWithXRP(CONFIG.ITEMS[2]))
+document.getElementById('claimBtn').addEventListener('click', claimFaucet)
+
+switchView('market')
+
+  </script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   try {
@@ -2078,34 +2057,6 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 })
-</script>
-<script>
-/* === NAV VIEW FIX (SAFE, SELF-CONTAINED) === */
-(function () {
-
-  function switchView(which) {
-    const market = document.getElementById('view-market')
-    const purchases = document.getElementById('view-purchases')
-    const redeem = document.getElementById('view-redeem')
-
-    if (market) market.style.display = (which === 'market') ? 'block' : 'none'
-    if (purchases) purchases.style.display = (which === 'purchases') ? 'block' : 'none'
-    if (redeem) redeem.style.display = (which === 'redeem') ? 'block' : 'none'
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const navMarket = document.getElementById('navMarket')
-    const navPurchases = document.getElementById('navPurchases')
-    const navRedeem = document.getElementById('navRedeem')
-
-    if (navMarket) navMarket.onclick = () => switchView('market')
-    if (navPurchases) navPurchases.onclick = () => switchView('purchases')
-    if (navRedeem) navRedeem.onclick = () => switchView('redeem')
-
-    switchView('market') // default
-  })
-
-})();
 </script>
 
 </body>
