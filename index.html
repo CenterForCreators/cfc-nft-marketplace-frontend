@@ -254,16 +254,21 @@
     </div>
 
   </div> <!-- ✅ closes the grid -->
+
 <section id="view-purchases" style="display:none">
   <div id="noPurchasesMsg" class="muted" style="text-align:center; margin:40px 0;">
     You don’t have any purchases yet.
   </div>
 
-  <div class="grid" id="purchasesGrid" style="display:none"></div>
+  <div class="grid" id="purchasesGrid"></div>
 </section>
 
 <section id="view-redeem" style="display:none">
   <input type="hidden" id="redeemOrderId">
+
+  <div class="muted" style="text-align:center; margin:40px 0;">
+    Select a purchase from “My Purchases” to redeem.
+  </div>
 </section>
 <script>
 document.getElementById('emailSubmit').addEventListener('click', () => {
