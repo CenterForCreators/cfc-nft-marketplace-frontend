@@ -2122,10 +2122,17 @@ async function loadMyPurchases(){
 
     const orders = await resp.json()
 
-    if (!orders.length){
-      grid.innerHTML = '<div class="muted">You have no purchases yet.</div>'
-      return
-    }
+   const noMsg = document.getElementById('noPurchasesMsg')
+
+if (!orders.length){
+  if (noMsg) noMsg.style.display = 'block'
+  grid.style.display = 'none'
+  return
+}
+
+// If we get here, there ARE purchases
+if (noMsg) noMsg.style.display = 'none'
+grid.style.display = 'grid'
 
     grid.innerHTML = orders.map(o => `
       <div class="card">
