@@ -2039,16 +2039,41 @@ ${it.website ? `
   setTimeout(cfc_load_market, 500);
 </script>
 <script>
-/* ========= VIEW SWITCHING ========= */
-function switchView(which){
-  const market = document.getElementById('view-market')
-  const purchases = document.getElementById('view-purchases')
-  const redeem = document.getElementById('view-redeem')
+function switchView(which) {
+  // Main sections
+  const viewMarket = document.getElementById('view-market')
+  const viewPurchases = document.getElementById('view-purchases')
+  const viewRedeem = document.getElementById('view-redeem')
 
-  if (market) market.style.display = which === 'market' ? 'block' : 'none'
-  if (purchases) purchases.style.display = which === 'purchases' ? 'block' : 'none'
-  if (redeem) redeem.style.display = which === 'redeem' ? 'block' : 'none'
+  // Live marketplace section
+  const liveMarket = document.getElementById('cfc-market-live')
+
+  // Hide everything first
+  if (viewMarket) viewMarket.style.display = 'none'
+  if (viewPurchases) viewPurchases.style.display = 'none'
+  if (viewRedeem) viewRedeem.style.display = 'none'
+  if (liveMarket) liveMarket.style.display = 'none'
+
+  // Show only the selected view
+  if (which === 'market') {
+    if (viewMarket) viewMarket.style.display = 'block'
+    if (liveMarket) liveMarket.style.display = 'block'
+  }
+
+  if (which === 'purchases') {
+    if (viewPurchases) viewPurchases.style.display = 'block'
+  }
+
+  if (which === 'redeem') {
+    if (viewRedeem) viewRedeem.style.display = 'block'
+  }
+
+  // Button styles (do not remove)
+  document.getElementById('navMarket')?.classList.toggle('secondary', which !== 'market')
+  document.getElementById('navPurchases')?.classList.toggle('secondary', which !== 'purchases')
+  document.getElementById('navRedeem')?.classList.toggle('secondary', which !== 'redeem')
 }
+
 
 /* ========= NAV BUTTONS ========= */
 document.addEventListener('DOMContentLoaded', () => {
