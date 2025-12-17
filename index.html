@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -264,20 +263,14 @@
 <section id="view-redeem" style="display:none">
   <input type="hidden" id="redeemOrderId">
 </section>
-<script>
-document.getElementById('emailSubmit').addEventListener('click', () => {
-  const email = document.getElementById('emailInput').value.trim()
-  const box = document.getElementById('emailMsg')
-  if(!/.+@.+\..+/.test(email)){
-    box.textContent = 'Please enter a valid email.'
-    return
-  }
-  const u = new URL(CONFIG.EMAIL_FALLBACK_URL)
-  u.searchParams.set('email', email)
-  window.open(u.toString(), '_blank')
-  box.textContent = 'Opening contact page…'
-})
-</script>
+
+    document.getElementById('emailSubmit').addEventListener('click', () => {
+      const email = document.getElementById('emailInput').value.trim()
+      const box = document.getElementById('emailMsg')
+      if(!/.+@.+\..+/.test(email)){ box.textContent='Please enter a valid email.'; return }
+      const u = new URL(CONFIG.EMAIL_FALLBACK_URL); u.searchParams.set('email', email); window.open(u.toString(), '_blank')
+      box.textContent='Opening contact page…'
+    })
 
    document.getElementById('connectBtn').addEventListener('click', connectXaman)
 document.getElementById('buy1rlusd').addEventListener('click', () => buyWithRLUSD(CONFIG.ITEMS[0]))
@@ -2018,46 +2011,6 @@ ${it.website ? `
 
 <script>
   setTimeout(cfc_load_market, 500);
-</script>
-<script>
-/* ========= VIEW SWITCHING ========= */
-function switchView(which){
-  const market = document.getElementById('view-market')
-  const purchases = document.getElementById('view-purchases')
-  const redeem = document.getElementById('view-redeem')
-
-  if (market) market.style.display = which === 'market' ? 'block' : 'none'
-  if (purchases) purchases.style.display = which === 'purchases' ? 'block' : 'none'
-  if (redeem) redeem.style.display = which === 'redeem' ? 'block' : 'none'
-}
-
-/* ========= NAV BUTTONS ========= */
-document.addEventListener('DOMContentLoaded', () => {
-  const navMarket = document.getElementById('navMarket')
-  const navPurchases = document.getElementById('navPurchases')
-  const navRedeem = document.getElementById('navRedeem')
-
-  if (navMarket){
-    navMarket.addEventListener('click', () => {
-      switchView('market')
-    })
-  }
-
-  if (navPurchases){
-    navPurchases.addEventListener('click', async () => {
-      switchView('purchases')
-      if (typeof loadMyPurchases === 'function') {
-        await loadMyPurchases()
-      }
-    })
-  }
-
-  if (navRedeem){
-    navRedeem.addEventListener('click', () => {
-      switchView('redeem')
-    })
-  }
-})
 </script>
 
 </body>
