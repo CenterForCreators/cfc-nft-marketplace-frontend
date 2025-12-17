@@ -2169,7 +2169,10 @@ grid.style.display = 'grid'
     const navRedeem = document.getElementById('navRedeem')
 
     if (navMarket) navMarket.onclick = () => switchView('market')
-    if (navPurchases) navPurchases.onclick = () => switchView('purchases')
+   if (navPurchases) navPurchases.onclick = async () => {
+  switchView('purchases')
+  await loadMyPurchases()
+}
     if (navRedeem) navRedeem.onclick = () => switchView('redeem')
 
     switchView('market') // default
