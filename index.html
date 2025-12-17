@@ -254,21 +254,14 @@
     </div>
 
   </div> <!-- ✅ closes the grid -->
+</section>
 
 <section id="view-purchases" style="display:none">
-  <div id="noPurchasesMsg" class="muted" style="text-align:center; margin:40px 0;">
-    You don’t have any purchases yet.
-  </div>
-
   <div class="grid" id="purchasesGrid"></div>
 </section>
 
 <section id="view-redeem" style="display:none">
   <input type="hidden" id="redeemOrderId">
-
-  <div class="muted" style="text-align:center; margin:40px 0;">
-    Select a purchase from “My Purchases” to redeem.
-  </div>
 </section>
 <script>
 document.getElementById('emailSubmit').addEventListener('click', () => {
@@ -2046,41 +2039,16 @@ ${it.website ? `
   setTimeout(cfc_load_market, 500);
 </script>
 <script>
-function switchView(which) {
-  // Main sections
-  const viewMarket = document.getElementById('view-market')
-  const viewPurchases = document.getElementById('view-purchases')
-  const viewRedeem = document.getElementById('view-redeem')
+/* ========= VIEW SWITCHING ========= */
+function switchView(which){
+  const market = document.getElementById('view-market')
+  const purchases = document.getElementById('view-purchases')
+  const redeem = document.getElementById('view-redeem')
 
-  // Live marketplace section
-  const liveMarket = document.getElementById('cfc-market-live')
-
-  // Hide everything first
-  if (viewMarket) viewMarket.style.display = 'none'
-  if (viewPurchases) viewPurchases.style.display = 'none'
-  if (viewRedeem) viewRedeem.style.display = 'none'
-  if (liveMarket) liveMarket.style.display = 'none'
-
-  // Show only the selected view
-  if (which === 'market') {
-    if (viewMarket) viewMarket.style.display = 'block'
-    if (liveMarket) liveMarket.style.display = 'block'
-  }
-
-  if (which === 'purchases') {
-    if (viewPurchases) viewPurchases.style.display = 'block'
-  }
-
-  if (which === 'redeem') {
-    if (viewRedeem) viewRedeem.style.display = 'block'
-  }
-
-  // Button styles (do not remove)
-  document.getElementById('navMarket')?.classList.toggle('secondary', which !== 'market')
-  document.getElementById('navPurchases')?.classList.toggle('secondary', which !== 'purchases')
-  document.getElementById('navRedeem')?.classList.toggle('secondary', which !== 'redeem')
+  if (market) market.style.display = which === 'market' ? 'block' : 'none'
+  if (purchases) purchases.style.display = which === 'purchases' ? 'block' : 'none'
+  if (redeem) redeem.style.display = which === 'redeem' ? 'block' : 'none'
 }
-
 
 /* ========= NAV BUTTONS ========= */
 document.addEventListener('DOMContentLoaded', () => {
@@ -2109,50 +2077,6 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 })
-  <script>
-async function loadMyPurchases(){
-  const grid = document.getElementById('purchasesGrid')
-
-  if (!grid) return
-
-  if (!window.connectedAccount){
-    grid.innerHTML = '<div class="muted">Connect your wallet to see your purchases.</div>'
-    return
-  }
-
-  try {
-    const resp = await fetch(
-      `https://cfc-nft-shared-mint-backend.onrender.com/api/orders/by-wallet/${window.connectedAccount}`
-    )
-
-    const orders = await resp.json()
-
-   const noMsg = document.getElementById('noPurchasesMsg')
-
-if (!orders.length){
-  if (noMsg) noMsg.style.display = 'block'
-  grid.style.display = 'none'
-  return
-}
-
-// If we get here, there ARE purchases
-if (noMsg) noMsg.style.display = 'none'
-grid.style.display = 'grid'
-
-    grid.innerHTML = orders.map(o => `
-      <div class="card">
-        <img class="nft-img" src="https://gateway.pinata.cloud/ipfs/${o.image_cid}" />
-        <h3 style="margin:10px 0">${o.name}</h3>
-        <div class="muted">Status: ${o.status}</div>
-        <button class="btn small" onclick="startRedeem(${o.id})">Redeem</button>
-      </div>
-    `).join('')
-
-  } catch (e){
-    console.error(e)
-    grid.innerHTML = '<div class="muted">Failed to load purchases.</div>'
-  }
-}
 </script>
 <script>
 /* === NAV VIEW FIX (SAFE, SELF-CONTAINED) === */
@@ -2174,10 +2098,7 @@ grid.style.display = 'grid'
     const navRedeem = document.getElementById('navRedeem')
 
     if (navMarket) navMarket.onclick = () => switchView('market')
-   if (navPurchases) navPurchases.onclick = async () => {
-  switchView('purchases')
-  await loadMyPurchases()
-}
+    if (navPurchases) navPurchases.onclick = () => switchView('purchases')
     if (navRedeem) navRedeem.onclick = () => switchView('redeem')
 
     switchView('market') // default
