@@ -35,6 +35,8 @@
     .btn.small{padding:8px 10px;font-size:14px}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
     .card{background:var(--card);border:1px solid #202c45;border-radius:16px;padding:18px}
+  /* Match live NFTs to static NFT card width */
+.live-nft-card { max-width:280px; }
     .muted{color:var(--muted)}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .nft-img{width:100%;height:180px;background:#0e1527;border-radius:12px;object-fit:cover;display:block}
@@ -52,7 +54,30 @@
     .captcha{display:flex;gap:8px;align-items:center}
     .captcha .tag{background:#1a2745;color:#cfe3ff;padding:4px 8px;border-radius:999px;font-size:12px}
     .note{font-size:12px;color:#9fb0d1;margin-top:6px}
-  </style>
+   /* --- CFC BUTTON COLOR OVERRIDES --- */
+
+  /* My Purchases = GREEN */
+  .btn.my-purchases {
+    background-color: #41b649 !important;
+    border-color: #41b649 !important;
+    color: #ffffff !important;
+  }
+
+  .btn.my-purchases:hover {
+    background-color: #37a03f !important;
+  }
+
+  /* Redeem = ORANGE */
+  .btn.redeem {
+    background-color: #ff8c1a !important;
+    border-color: #ff8c1a !important;
+    color: #ffffff !important;
+  }
+
+  .btn.redeem:hover {
+    background-color: #e67600 !important;
+  }
+</style>
 <script>
     // ------- CONFIG (single block) -------
     window.CONFIG = { USE_CORS_PROXY: true, CORS_PROXY: 'https://cors.isomorphic-git.org/', 
@@ -145,20 +170,21 @@
 </div>
 
 <div class="row" style="margin-bottom:12px">
-<button class="btn" id="navMarket">Marketplace</button>
-<button class="btn secondary" id="navPurchases">My Purchases</button>
-<button class="btn secondary" id="navRedeem">Redeem</button>
+  <button class="btn" id="navMarket">Marketplace</button>
+  <button class="btn my-purchases" id="navPurchases">My Purchases</button>
+  <button class="btn redeem" id="navRedeem">Redeem</button>
 </div>
+
   <!-- LIVE MINTED NFT MARKET FEED (DYNAMIC) -->
 <section id="cfc-market-live" style="padding:40px 0 10px 0;">
   <h2 style="text-align:center;color:#fff;margin-bottom:20px;">
     Live NFTs from CFC Creators
   </h2>
+  
+<div id="cfc-market-grid" class="grid">
+  <!-- Filled by JavaScript -->
+</div>
 
-  <div id="cfc-market-grid"
-       style="display:flex;flex-wrap:wrap;gap:25px;justify-content:center;">
-    <!-- Filled by JavaScript -->
-  </div>
 </section>
 
 <section id="view-market">
@@ -2044,105 +2070,172 @@ try {
   });
 </script>
 <script>
-  // Keep the auto-height for the iframe
+  // --------------------------------
+  // IFRAME AUTO-HEIGHT (KEEP)
+  // --------------------------------
   function sendHeight() {
     const height = document.body.scrollHeight;
     window.parent.postMessage({ cfcHeight: height }, "*");
   }
   setInterval(sendHeight, 500);
-  window.onload = sendHeight;
+  window.addEventListener("load", sendHeight);
 
-  // Load live NFTs from the shared mint backend
-  async function loadCFCMarketplace() {
+  // --------------------------------
+  // LIVE MARKETPLACE
+  // --------------------------------
+  const MARKET_API = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/all";
+  const MARKET_PAY_XRP = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-xrp";
+  const MARKET_PAY_RLUSD = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-rlusd";
+
+  window.cfc_xrp_usd = null;
+
+  async function cfc_fetchXrpUsd(){
     try {
-      const r = await fetch(
-        "https://cfc-nft-shared-mint-backend.onrender.com/api/market/all"
-      );
-      const items = await r.json();
+      const r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd");
+      const j = await r.json();
+      window.cfc_xrp_usd = j.ripple.usd;
+    } catch(e){}
+  }
 
-      const grid = document.getElementById("cfc-market-grid");
-      grid.innerHTML = "";
+  function cfc_calcXrp(usd){
+    if(!window.cfc_xrp_usd) return "—";
+    return (usd / window.cfc_xrp_usd).toFixed(2);
+  }
 
-      items.forEach(item => {
-        const card = `
-          <div style="
-            width:260px;
-            background:#111;
-            border-radius:12px;
-            padding:15px;
-            color:#fff;
-            text-align:center;
-          ">
-            <img 
-              src="https://gateway.pinata.cloud/ipfs/${item.image_cid}" 
-              style="width:100%;border-radius:10px;margin-bottom:10px;"
-            >
-
-            <h3 style="margin:8px 0;">${item.name}</h3>
-
-            <p style="font-size:14px;opacity:0.8;">
-              ${item.description || ""}
-            </p>
-
-            <p style="font-size:13px;margin-top:6px;opacity:0.7;">
-              Terms: ${item.terms || "N/A"}
-            </p>
-
-            <p style="font-size:13px;margin-top:6px;opacity:0.7;">
-              Available: ${item.quantity || "1"}
-            </p>
-
-            <p style="margin-top:10px;font-weight:bold;">
-              ${item.price_xrp} XRP<br>
-              ${item.price_rlusd} RLUSD
-            </p>
-
-            <button onclick="payXRP(${item.id})"
-              style="margin-top:10px;padding:8px 12px;border-radius:8px;cursor:pointer;">
-              Pay XRP
-            </button>
-
-            <button onclick="payRLUSD(${item.id})"
-              style="margin-top:8px;padding:8px 12px;border-radius:8px;cursor:pointer;">
-              Pay RLUSD
-            </button>
-          </div>
-        `;
-        grid.innerHTML += card;
-      });
-
-    } catch (e) {
-      console.error("Marketplace load error:", e);
+  // --------------------------------
+  // READ MORE / SEE LESS (3 LINES)
+  // --------------------------------
+  const style = document.createElement("style");
+  style.textContent = `
+    .cfc-clamp {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
     }
+    .cfc-expanded {
+      -webkit-line-clamp: unset;
+    }
+    .cfc-toggle {
+      cursor: pointer;
+      color: #6b5cff;
+      font-weight: 500;
+      display: inline-block;
+      margin-top: 4px;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function toggleReadMore(id){
+    const el = document.getElementById(id);
+    const btn = document.getElementById(id + "-btn");
+    const expanded = el.classList.toggle("cfc-expanded");
+    btn.textContent = expanded ? "See less" : "Read more";
+    sendHeight();
   }
 
-  document.addEventListener("DOMContentLoaded", loadCFCMarketplace);
+  function cfc_renderNFT(it){
+    const img = `https://gateway.pinata.cloud/ipfs/${it.image_cid}`;
+    const xrp = cfc_calcXrp(Number(it.price_rlusd || 0));
 
-  async function payXRP(id) {
-    const r = await fetch(
-      "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-xrp",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      }
-    );
+    return `
+      <div class="card live-nft-card" data-rlusd="${it.price_rlusd}">
+        <img class="nft-img" src="${img}" alt="${it.name}">
+
+        <h3 style="margin:12px 0 4px;">${it.name}</h3>
+
+        <div id="desc-${it.id}" class="muted cfc-clamp">
+${it.description || ""}
+        </div>
+        <span id="desc-${it.id}-btn"
+          class="cfc-toggle"
+          onclick="toggleReadMore('desc-${it.id}')">Read more</span>
+          
+${it.website ? `
+  <div class="muted" style="margin-top:6px;">
+    <a href="${it.website}"
+       target="_blank"
+       rel="noopener noreferrer">
+      Creator website →
+    </a>
+  </div>
+` : ""}
+
+        <div id="terms-${it.id}"
+          class="muted cfc-clamp"
+          style="margin-top:12px;white-space:pre-wrap;"><strong>Terms:</strong> ${it.terms || "—"}</div>
+
+        <span id="terms-${it.id}-btn"
+          class="cfc-toggle"
+          onclick="toggleReadMore('terms-${it.id}')">Read more</span>
+
+        <div class="muted" style="margin-top:6px;">
+          Quantity: ${it.quantity_remaining}
+        </div>
+
+        <div class="row" style="justify-content:space-between;margin-top:14px;">
+          <div>
+            <div class="muted">Price</div>
+            <div><strong class="live-nft-xrp">${xrp} XRP</strong></div>
+            <div class="muted">·</div>
+            <div><strong>${it.price_rlusd} RLUSD</strong></div>
+          </div>
+
+          <div class="row">
+            <button class="btn small" onclick="cfc_pay_rlusd(${it.id})">Pay RLUSD</button>
+            <button class="btn small secondary" onclick="cfc_pay_xrp(${it.id})">Pay XRP</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function cfc_load_market(){
+    await cfc_fetchXrpUsd();
+    const grid = document.getElementById("cfc-market-grid");
+    if(!grid) return;
+
+    const r = await fetch(MARKET_API);
+    const items = await r.json();
+    grid.innerHTML = items.map(cfc_renderNFT).join("");
+    sendHeight();
+  }
+
+  async function cfc_pay_xrp(id){
+    const r = await fetch(MARKET_PAY_XRP,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ id })
+    });
     const j = await r.json();
-    if (j.link) window.open(j.link, "_blank");
+    if(j.link) window.open(j.link,"_blank");
   }
 
-  async function payRLUSD(id) {
-    const r = await fetch(
-      "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-rlusd",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      }
-    );
+  async function cfc_pay_rlusd(id){
+    const r = await fetch(MARKET_PAY_RLUSD,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ id })
+    });
     const j = await r.json();
-    if (j.link) window.open(j.link, "_blank");
+    if(j.link) window.open(j.link,"_blank");
   }
+
+  document.addEventListener("DOMContentLoaded", cfc_load_market);
+
+  setInterval(async ()=>{
+    await cfc_fetchXrpUsd();
+    document.querySelectorAll(".live-nft-card").forEach(card=>{
+      const el = card.querySelector(".live-nft-xrp");
+      if(!el) return;
+      const rl = Number(card.dataset.rlusd || 0);
+      el.textContent = `${cfc_calcXrp(rl)} XRP`;
+    });
+  }, 20000);
+</script>
+
+<script>
+  setTimeout(cfc_load_market, 500);
 </script>
 
 </body>
