@@ -1887,7 +1887,15 @@ try {
     const height = document.body.scrollHeight;
     window.parent.postMessage({ cfcHeight: height }, "*");
   }
-  setInterval(sendHeight, 500);
+ let lastH = 0;
+setInterval(() => {
+  const h = document.body.scrollHeight;
+  if (h !== lastH) {
+    lastH = h;
+    sendHeight();
+  }
+}, 1200);
+
   window.addEventListener("load", sendHeight);
 
   // --------------------------------
@@ -1950,7 +1958,7 @@ try {
 
     return `
       <div class="card live-nft-card" data-rlusd="${it.price_rlusd}">
-        <img class="nft-img" src="${img}" alt="${it.name}">
+       <img class="nft-img" src="${img}" alt="${it.name}" loading="lazy" decoding="async">
 
         <h3 style="margin:12px 0 4px;">${it.name}</h3>
 
