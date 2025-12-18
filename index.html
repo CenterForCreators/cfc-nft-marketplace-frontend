@@ -2135,6 +2135,56 @@ async function loadMyPurchases() {
   }
 }
 </script>
+<script>
+async function loadMyPurchases() {
+  const grid = document.getElementById('purchasesGrid')
+  const noMsg = document.getElementById('noPurchasesMsg')
+
+  if (!grid || !noMsg) return
+
+  // Wallet not connected
+  if (!connectedAccount) {
+    noMsg.textContent = 'Connect your wallet to see your purchases.'
+    noMsg.style.display = 'block'
+    grid.style.display = 'none'
+    return
+  }
+
+  try {
+    const resp = await fetch(
+      `https://cfc-nft-shared-mint-backend.onrender.com/api/orders/by-wallet/${connectedAccount}`
+    )
+
+    const orders = await resp.json()
+
+    // No purchases
+    if (!orders.length) {
+      noMsg.textContent = 'You don’t have any purchases yet.'
+      noMsg.style.display = 'block'
+      grid.style.display = 'none'
+      return
+    }
+
+    // Has purchases
+    noMsg.style.display = 'none'
+    grid.style.display = 'grid'
+
+    grid.innerHTML = orders.map(o => `
+      <div class="card">
+        <img class="nft-img" src="https://gateway.pinata.cloud/ipfs/${o.image_cid}">
+        <h3>${o.name}</h3>
+        <div class="muted">Status: ${o.status}</div>
+        <button class="btn small" onclick="startRedeem(${o.id})">Redeem</button>
+      </div>
+    `).join('')
+
+  } catch (e) {
+    noMsg.textContent = 'Failed to load purchases.'
+    noMsg.style.display = 'block'
+    grid.style.display = 'none'
+  }
+}
+</script>
 
 </body>
 </html>
