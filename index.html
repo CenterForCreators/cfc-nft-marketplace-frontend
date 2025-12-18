@@ -10,6 +10,36 @@
   <script>
     const client = new xrpl.Client('wss://s1.ripple.com');
   </script>
+ <script>
+/* ================================
+   CFC LEARN-TO-EARN (TRACK ONLY)
+   Safe / Add-Only / No Regressions
+================================ */
+
+async function trackLearnAction(submissionId, actionType, actionRef) {
+  if (!window.connectedAccount) {
+    console.warn("Wallet not connected — learn action not tracked");
+    return;
+  }
+
+  try {
+    await fetch("https://cfc-nft-creator-backend.onrender.com/api/learn/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        wallet: window.connectedAccount,
+        submission_id: submissionId,
+        action_type: actionType,
+        action_ref: actionRef
+      })
+    });
+
+    console.log("Learn action tracked:", actionType, actionRef);
+  } catch (e) {
+    console.error("Learn tracking failed", e);
+  }
+}
+</script> 
 
   <!-- BUILD TAG: CFC-OK -->
   <meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
