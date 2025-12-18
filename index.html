@@ -2048,15 +2048,31 @@ ${it.website ? `
   setTimeout(cfc_load_market, 500);
 </script>
 <script>
-/* ========= VIEW SWITCHING ========= */
 function switchView(which){
   const market = document.getElementById('view-market')
   const purchases = document.getElementById('view-purchases')
   const redeem = document.getElementById('view-redeem')
+  const liveMarket = document.getElementById('cfc-market-live')
 
-  if (market) market.style.display = which === 'market' ? 'block' : 'none'
-  if (purchases) purchases.style.display = which === 'purchases' ? 'block' : 'none'
-  if (redeem) redeem.style.display = which === 'redeem' ? 'block' : 'none'
+  // Hide everything first
+  if (market) market.style.display = 'none'
+  if (purchases) purchases.style.display = 'none'
+  if (redeem) redeem.style.display = 'none'
+  if (liveMarket) liveMarket.style.display = 'none'
+
+  // Show only what is needed
+  if (which === 'market'){
+    if (market) market.style.display = 'block'
+    if (liveMarket) liveMarket.style.display = 'block'
+  }
+
+  if (which === 'purchases'){
+    if (purchases) purchases.style.display = 'block'
+  }
+
+  if (which === 'redeem'){
+    if (redeem) redeem.style.display = 'block'
+  }
 }
 
 /* ========= NAV BUTTONS ========= */
