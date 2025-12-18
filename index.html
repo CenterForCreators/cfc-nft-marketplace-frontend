@@ -2140,7 +2140,10 @@ async function loadMyPurchases() {
         <img class="nft-img" src="https://gateway.pinata.cloud/ipfs/${o.image_cid}" />
         <h3 style="margin:10px 0">${o.name}</h3>
         <div class="muted">Status: ${o.status}</div>
-        <button class="btn small" onclick="switchView('redeem')">Redeem</button>
+       <button class="btn small" onclick="startRedeem(${o.id})">
+  Redeem
+</button>
+
       </div>
     `).join('')
   } catch (e) {
@@ -2198,6 +2201,50 @@ async function loadMyPurchases() {
     noMsg.textContent = 'Failed to load purchases.'
     noMsg.style.display = 'block'
     grid.style.display = 'none'
+  }
+}
+</script>
+<script>
+function startRedeem(orderId){
+  document.getElementById('redeemOrderId').value = orderId
+  document.getElementById('redeemMsg').textContent = ''
+  switchView('redeem')
+}
+
+async function submitRedeem(){
+  const orderId = document.getElementById('redeemOrderId').value
+  const email   = document.getElementById('redeemEmail').value
+  const msg     = document.getElementById('redeemMsg')
+
+  if (!orderId || !email){
+    msg.textContent = 'Please enter your email.'
+    return
+  }
+
+  try {
+    const r = await fetch(
+      'https://cfc-nft-shared-mint-backend.onrender.com/api/orders/redeem',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: orderId,
+          wallet: window.connectedAccount,
+          email
+        })
+      }
+    )
+
+    const j = await r.json()
+
+    if (!r.ok){
+      msg.textContent = j.error || 'Redeem failed.'
+      return
+    }
+
+    msg.textContent = '✅ Redeem request submitted.'
+  } catch (e){
+    msg.textContent = 'Network error.'
   }
 }
 </script>
