@@ -1912,6 +1912,36 @@ try {
   });
 </script>
 <script>
+/* ================================
+   CFC LEARN-TO-EARN (PASSIVE TRACK)
+   ADD-ONLY / NO UI / NO REGRESSIONS
+================================ */
+
+async function trackLearnAction(submissionId, actionType, actionRef) {
+  try {
+    // Wallet not connected → do nothing
+    if (!window.connectedAccount) return;
+
+    await fetch(
+      "https://cfc-nft-creator-backend.onrender.com/api/learn/track",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          wallet: window.connectedAccount,
+          submission_id: submissionId,
+          action_type: actionType,
+          action_ref: actionRef
+        })
+      }
+    );
+  } catch {
+    // Silent failure — no UI impact
+  }
+}
+</script>
+
+<script>
   // --------------------------------
   // IFRAME AUTO-HEIGHT (KEEP)
   // --------------------------------
