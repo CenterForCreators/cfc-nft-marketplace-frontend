@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -54,8 +55,6 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
     :root { --bg:#0b1220; --card:#121a2b; --text:#f6f8ff; --muted:#9fb0d1; --accent:#7db8ff; --ok:#1fcf7c; --warn:#ffcc00; --err:#ff6b6b;}
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
-  body {
-}
     a{color:var(--accent);text-decoration:none}
     .wrap{max-width:1100px;margin:0 auto;padding:22px}
     header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}
@@ -2350,29 +2349,6 @@ async function submitRedeem(){
     msg.textContent = 'Network error.'
   }
 }
-</script>
-<script>
-(function () {
-  function sendHeight() {
-    const h = Math.max(
-      document.body.scrollHeight,
-      document.documentElement.scrollHeight
-    );
-    window.parent.postMessage({ cfcHeight: h }, "*");
-  }
-
-  // Lock height early
-  document.addEventListener("DOMContentLoaded", () => {
-    sendHeight();
-    requestAnimationFrame(sendHeight);
-  });
-
-  // Reveal page only after layout settles
-  window.addEventListener("load", () => {
-    sendHeight();
-    document.body.style.visibility = "visible";
-  });
-})();
 </script>
 
 </body>
