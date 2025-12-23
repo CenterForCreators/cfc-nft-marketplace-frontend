@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -2121,7 +2122,9 @@ let cfcMarketLoaded = false;
 </script>
 <script>
 function switchView(which){
-  DEN
+  // FORCE STATIC MARKET TO STAY HIDDEN
+const staticMarket = document.getElementById("view-market");
+if (staticMarket) staticMarket.style.display = "none";
 
   const market = document.getElementById('view-market')
   const purchases = document.getElementById('view-purchases')
@@ -2136,7 +2139,7 @@ function switchView(which){
 
   // Show only what is needed
   if (which === 'market'){
-    if (market) market.style.display = 'none'   // keep static market hidden always
+    if (market) market.style.display = 'block'
     if (liveMarket) liveMarket.style.display = 'block'
   }
 
