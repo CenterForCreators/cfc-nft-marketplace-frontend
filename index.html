@@ -2350,6 +2350,26 @@ async function submitRedeem(){
   }
 }
 </script>
+<script>
+(function () {
+  window.addEventListener("message", function (event) {
+    // Sync wallet across sections
+    if (event.data && event.data.type === "CFC_WALLET") {
+      try {
+        localStorage.setItem("cfc_wallet", event.data.wallet);
+      } catch(e){}
+    }
+
+    // Auto-size Live NFT iframe
+    if (event.data && event.data.cfcHeight) {
+      var f = document.getElementById("cfcLiveNftsFrame");
+      if (f) {
+        f.style.height = event.data.cfcHeight + "px";
+      }
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
