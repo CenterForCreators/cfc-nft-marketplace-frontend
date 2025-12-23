@@ -2119,6 +2119,10 @@ ${it.website ? `
 </script>
 <script>
 function switchView(which){
+  // FORCE STATIC MARKET TO STAY HIDDEN
+const staticMarket = document.getElementById("view-market");
+if (staticMarket) staticMarket.style.display = "none";
+
   const market = document.getElementById('view-market')
   const purchases = document.getElementById('view-purchases')
   const redeem = document.getElementById('view-redeem')
