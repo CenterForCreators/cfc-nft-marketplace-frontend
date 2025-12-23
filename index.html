@@ -2069,8 +2069,10 @@ ${it.website ? `
       </div>
     `;
   }
-
+let cfcMarketLoaded = false;
   async function cfc_load_market(){
+     if (cfcMarketLoaded) return;
+  cfcMarketLoaded = true;
     await cfc_fetchXrpUsd();
     const grid = document.getElementById("cfc-market-grid");
     if(!grid) return;
