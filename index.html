@@ -167,7 +167,7 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
 <div class="card" id="faucetCard" style="margin-bottom:16px">
 <div class="row" style="justify-content:space-between">
 <div>
-<div style="font-weight:800;margin-bottom:6px;font-size:20px !important;color:#FF8C00 !important;">
+<div style="font-weight:1000;margin-bottom:6px;font-size:20px !important;color:#FF8C00 !important;">
   Daily CFC Faucet
 </div>
 
@@ -1950,19 +1950,40 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
   // IFRAME AUTO-HEIGHT (KEEP)
   // --------------------------------
   function sendHeight() {
-    const height = document.body.scrollHeight;
+    const height = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight
+    );
     window.parent.postMessage({ cfcHeight: height }, "*");
   }
- let lastH = 0;
-setInterval(() => {
-  const h = document.body.scrollHeight;
-  if (h !== lastH) {
-    lastH = h;
-    sendHeight();
-  }
-}, 1200);
 
-  window.addEventListener("load", sendHeight);
+  let lastH = 0;
+  function sendHeightIfChanged(){
+    const h = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight
+    );
+    if (h !== lastH) {
+      lastH = h;
+      window.parent.postMessage({ cfcHeight: h }, "*");
+    }
+  }
+
+  // fire EARLY (prevents the “scroll then disappear” effect)
+  window.addEventListener("DOMContentLoaded", () => {
+    sendHeightIfChanged();
+    requestAnimationFrame(sendHeightIfChanged);
+    setTimeout(sendHeightIfChanged, 50);
+    setTimeout(sendHeightIfChanged, 250);
+  });
+
+  // keep your existing periodic check (same behavior)
+  setInterval(sendHeightIfChanged, 1200);
+
+  window.addEventListener("load", () => {
+    sendHeightIfChanged();
+    requestAnimationFrame(sendHeightIfChanged);
+  });
 
   // --------------------------------
   // LIVE MARKETPLACE
