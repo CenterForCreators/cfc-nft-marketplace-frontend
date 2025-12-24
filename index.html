@@ -2157,8 +2157,8 @@ document.addEventListener("DOMContentLoaded", cfc_load_market);
 /* ===== CATEGORY FILTER ===== */
 
 let activeCategory = "all";
+document.querySelectorAll("#cfc-category-tabs .btn").forEach(btn => {
 
-document.querySelectorAll(".cfc-tab").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".cfc-tab").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
