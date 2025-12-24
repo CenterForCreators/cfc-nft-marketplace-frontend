@@ -214,9 +214,17 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
   <!-- LIVE MINTED NFT MARKET FEED (DYNAMIC) -->
 <section id="cfc-market-live" style="padding:40px 0 10px 0;">
   <h2 style="text-align:center;color:#fff;margin-bottom:20px;">
-    Live NFTs from CFC Creators
-  </h2>
-  
+   </h2>
+
+<!-- CATEGORY FILTER TABS -->
+<div id="cfc-category-tabs" class="cfc-tabs">
+  <button class="cfc-tab active" data-cat="all">All</button>
+  <button class="cfc-tab orange" data-cat="services">Services</button>
+  <button class="cfc-tab blue" data-cat="workshops">Workshops</button>
+  <button class="cfc-tab green" data-cat="books">Books</button>
+  <button class="cfc-tab yellow" data-cat="art">Art</button>
+</div>
+
 <div id="cfc-market-grid" class="grid">
   <!-- Filled by JavaScript -->
 </div>
@@ -2097,53 +2105,84 @@ ${it.website ? `
     `;
   }
 let cfcMarketLoaded = false;
-  async function cfc_load_market(){
-     if (cfcMarketLoaded) return;
+
+async function cfc_load_market(){
+  if (cfcMarketLoaded) return;
   cfcMarketLoaded = true;
-    await cfc_fetchXrpUsd();
-    const grid = document.getElementById("cfc-market-grid");
-    if(!grid) return;
 
-    const r = await fetch(MARKET_API);
-    const items = await r.json();
-    grid.innerHTML = items.map(cfc_renderNFT).join("");
-    sendHeight();
-  }
+  await cfc_fetchXrpUsd();
+  const grid = document.getElementById("cfc-market-grid");
+  if(!grid) return;
 
-  async function cfc_pay_xrp(id){
-    const r = await fetch(MARKET_PAY_XRP,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ id })
-    });
-    const j = await r.json();
-    if(j.link) window.open(j.link,"_blank");
-  }
+  const r = await fetch(MARKET_API);
+  const items = await r.json();
 
-  async function cfc_pay_rlusd(id){
-    const r = await fetch(MARKET_PAY_RLUSD,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ id })
-    });
-    const j = await r.json();
-    if(j.link) window.open(j.link,"_blank");
-  }
+  window.allMarketItems = items;
+  renderFilteredNFTs();
 
-  document.addEventListener("DOMContentLoaded", cfc_load_market);
+  sendHeight();
+}
 
-  setInterval(async ()=>{
-    await cfc_fetchXrpUsd();
-    document.querySelectorAll(".live-nft-card").forEach(card=>{
-      const el = card.querySelector(".live-nft-xrp");
-      if(!el) return;
-      const rl = Number(card.dataset.rlusd || 0);
-      el.textContent = `${cfc_calcXrp(rl)} XRP`;
-    });
-  }, 20000);
-</script>
+async function cfc_pay_xrp(id){
+  const r = await fetch(MARKET_PAY_XRP,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ id })
+  });
+  const j = await r.json();
+  if(j.link) window.open(j.link,"_blank");
+}
 
-<script>
+async function cfc_pay_rlusd(id){
+  const r = await fetch(MARKET_PAY_RLUSD,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ id })
+  });
+  const j = await r.json();
+  if(j.link) window.open(j.link,"_blank");
+}
+
+document.addEventListener("DOMContentLoaded", cfc_load_market);
+
+/* ===== CATEGORY FILTER ===== */
+
+let activeCategory = "all";
+
+document.querySelectorAll(".cfc-tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".cfc-tab").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeCategory = btn.dataset.cat;
+    renderFilteredNFTs();
+  });
+});
+
+function renderFilteredNFTs() {
+  const grid = document.getElementById("cfc-market-grid");
+  if (!grid || !window.allMarketItems) return;
+
+  const filtered =
+    activeCategory === "all"
+      ? window.allMarketItems
+      : window.allMarketItems.filter(n =>
+          (n.category || n.metadata?.category) === activeCategory
+        );
+
+  grid.innerHTML = filtered.map(cfc_renderNFT).join("");
+}
+
+/* ===== PRICE REFRESH ===== */
+
+setInterval(async ()=>{
+  await cfc_fetchXrpUsd();
+  document.querySelectorAll(".live-nft-card").forEach(card=>{
+    const el = card.querySelector(".live-nft-xrp");
+    if(!el) return;
+    const rl = Number(card.dataset.rlusd || 0);
+    el.textContent = `${cfc_calcXrp(rl)} XRP`;
+  });
+}, 20000);
   setTimeout(cfc_load_market, 500);
 </script>
 <script>
