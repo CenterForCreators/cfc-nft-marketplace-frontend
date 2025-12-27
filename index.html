@@ -821,7 +821,7 @@ try {
       try{
         const j = await postJson(CONFIG.FAUCET_ENDPOINT, { captcha_ok:true, account });
         if(j && j.ok){
-          if(claimStatus){ claimStatus.className='status ok'; claimStatus.textContent='✅ 10 CFC sent (pending ledger)…'; }
+          if(claimStatus){ claimStatus.className='status ok'; claimStatus.textContent='✅ 25 CFC sent (pending ledger)…'; }
           setTimeout(()=>connectXRPLAndLoadBalances(account), 8000);
         }else{
           if (claimStatus){ 
@@ -1311,7 +1311,7 @@ try {
         throw new Error(t || 'Faucet failed');
       }
       const data = await res.json().catch(()=>({}));
-      setStatus('Faucet sent: 10 CFC. Check your wallet.');
+      setStatus('Faucet sent: 25 CFC. Check your wallet.');
       // Refresh balances after a short delay
       setTimeout(() => refreshBalances(connectedAccount), 1500);
     } catch (e) {
@@ -1583,7 +1583,7 @@ try {
       try{
         const j = await postJson(FAUCET_ENDPOINT, { captcha_ok:true });
         if (j && j.ok){
-          if (claimStatus){ claimStatus.className='status ok'; claimStatus.textContent='✅ 10 CFC sent!'; }
+          if (claimStatus){ claimStatus.className='status ok'; claimStatus.textContent='✅ 25 CFC sent!'; }
           regen();
         }else{
           if (claimStatus){ 
