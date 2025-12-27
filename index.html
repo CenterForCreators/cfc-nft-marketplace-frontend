@@ -235,6 +235,15 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
   <button class="btn green" data-cat="books">Books</button>
   <button class="btn yellow" data-cat="art">Art</button>
 </div>
+<script>
+document.querySelectorAll('#cfc-category-tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (typeof switchView === 'function') {
+      switchView('market');
+    }
+  });
+});
+</script>
 
 <div id="cfc-market-grid" class="grid">
   <!-- Filled by JavaScript -->
