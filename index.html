@@ -219,6 +219,13 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
   <button class="btn my-purchases" id="navPurchases">My Purchases</button>
   <button class="btn redeem" id="navRedeem">Redeem</button>
 </div>
+<script>
+document.getElementById('navMarket').addEventListener('click', () => {
+  if (typeof switchView === 'function') {
+    switchView('market');
+  }
+});
+</script>
 
   <!-- LIVE MINTED NFT MARKET FEED (DYNAMIC) -->
 <section id="cfc-market-live" style="padding:40px 0 10px 0;">
