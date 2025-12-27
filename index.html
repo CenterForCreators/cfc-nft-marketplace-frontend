@@ -494,7 +494,7 @@ async function connect(){
     });
     const data = await r.json().catch(()=>({}));
     var m=document.getElementById('claimMsg');
-    if (r.ok) m && (m.textContent='✅ 10 CFC sent! Check your wallet soon.');
+    if (r.ok) m && (m.textContent='✅ 25 CFC sent! Check your wallet soon.');
     else m && (m.textContent=(data?.error || 'Claim failed.'));
   }catch(e){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Network error.'; }
   if(spinner) spinner.style.display='none';
@@ -557,7 +557,7 @@ function checkCaptcha(){
     var acctEl=document.getElementById('acct');
     var acct=acctEl?acctEl.textContent:'';
     if(!acct || acct==='Not connected'){ alert('Connect wallet first.'); return; }
-    var I=document.getElementById('capAns'); var v=parseInt(I?I.value:'',10);
+    var I=document.getElementById('capAns'); var v=parseInt(I?I.value:'',25);
     if(isNaN(v)||v!==(_a+_b)){ alert('Wrong answer, try again.'); regenCaptcha(); return; }
     try{
       const r=await fetch((CONFIG && CONFIG.USE_CORS_PROXY ? (CONFIG.CORS_PROXY + 'https://cfc-faucet.onrender.com/api/faucet') : 'https://cfc-faucet.onrender.com/api/faucet'),{
@@ -565,7 +565,7 @@ function checkCaptcha(){
         body: JSON.stringify({ address: acct, amount: 10, currency: 'CFC' })
       });
       if(!r.ok) throw new Error('Faucet error');
-      alert('✅ 10 CFC sent!');
+      alert('✅ 25 CFC sent!');
       regenCaptcha();
     }catch(e){ console.error(e); alert('Faucet request failed'); }
   }
