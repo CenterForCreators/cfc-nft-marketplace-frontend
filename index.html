@@ -2183,6 +2183,9 @@ document.querySelectorAll("#cfc-category-tabs .btn").forEach(btn => {
     document.querySelectorAll(".cfc-tab").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     activeCategory = btn.dataset.cat;
+    if (typeof switchView === "function") {
+  switchView("market");
+}
     renderFilteredNFTs();
   });
 });
