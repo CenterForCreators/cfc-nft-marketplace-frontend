@@ -2176,15 +2176,19 @@ document.addEventListener("DOMContentLoaded", cfc_load_market);
 /* ===== CATEGORY FILTER ===== */
 
 let activeCategory = "all";
-document.querySelectorAll("#cfc-category-tabs .btn").forEach(btn => {
 
+document.querySelectorAll("#cfc-category-tabs .btn").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".cfc-tab").forEach(b => b.classList.remove("active"));
+    document
+      .querySelectorAll("#cfc-category-tabs .btn")
+      .forEach(b => b.classList.remove("active"));
+
     btn.classList.add("active");
     activeCategory = btn.dataset.cat;
     renderFilteredNFTs();
   });
 });
+
 
 function renderFilteredNFTs() {
   const grid = document.getElementById("cfc-market-grid");
