@@ -1050,7 +1050,7 @@ try {
     }
   }
 
-  async async function connectXumm(){
+  async function connectXumm
     try{
       if(window.xumm && window.xumm.authorize){
         const res = await window.xumm.authorize();
@@ -2453,6 +2453,35 @@ async function submitRedeem(){
     msg.textContent = 'Network error.'
   }
 }
+</script>
+<script>
+/* FINAL CONNECT OVERRIDE — MOBILE SAFE, NO REGRESSIONS */
+(function(){
+  const btn = document.getElementById('connectBtn');
+  if (!btn) return;
+
+  // Remove ALL existing click handlers safely
+  const clean = btn.cloneNode(true);
+  btn.parentNode.replaceChild(clean, btn);
+
+  // Bind ONE authoritative handler
+  clean.addEventListener('click', function(){
+    if (!window.xumm) return;
+
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isIOS) {
+      xumm.authorize({
+        return_url: {
+          app: "https://centerforcreators.com/nft-marketplace",
+          web: "https://centerforcreators.com/nft-marketplace"
+        }
+      });
+    } else {
+      xumm.authorize();
+    }
+  });
+})();
 </script>
 
 </body>
