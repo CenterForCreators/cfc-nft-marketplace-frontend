@@ -138,6 +138,29 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
     function hide(el){ el.style.display='none'; }
     function toast(msg){ const t=$('#toast'); t.textContent=msg; show(t); setTimeout(()=>hide(t), 3500); }
   </script>
+  <script>
+function isIOS(){
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+async function xamanAuthorizeSafe(){
+  if (!window.xumm) return;
+
+  // iPhone: force return to GoDaddy page
+  if (isIOS()){
+    await xumm.authorize({
+      return_url: {
+        app: "https://centerforcreators.com/nft-marketplace",
+        web: "https://centerforcreators.com/nft-marketplace"
+      }
+    });
+  } else {
+    // Desktop: unchanged
+    await xumm.authorize();
+  }
+}
+</script>
+
 <!-- Render-hosted SDKs -->
 <script 
   onload="try{ window.xumm = new Xumm('eebd4c17-c3ef-435b-b891-89afb99e259e'); }catch(e){ console.error(e); }" 
@@ -160,7 +183,8 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
 <header>
 <div class="brand">
 </div>
-<button class="btn" id="connectBtn" onclick="try{ if(window.connect){connect()} else if(window.xumm){xumm.authorize()} }catch(e){}"><span id="addrBadge" style="margin-left:8px;opacity:0.9"></span>Connect Xaman Wallet</button><div id="emailInput" ...>
+<button class="btn" id="connectBtn" onclick="try{ if(window.connect){connect()} else { xamanAuthorizeSafe(); }
+ }catch(e){}"><span id="addrBadge" style="margin-left:8px;opacity:0.9"></span>Connect Xaman Wallet</button><div id="emailInput" ...>
 
     
 </header>
