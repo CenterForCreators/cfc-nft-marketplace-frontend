@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -152,12 +153,7 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
 <style>
   button { cursor: pointer !important; }
 </style>
-<style>
-html, body {
-  overflow: hidden !important;
-  height: 100%;
-}
-</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -2433,12 +2429,6 @@ async function submitRedeem(){
     msg.textContent = 'Network error.'
   }
 }
-</script>
-<script>
-window.addEventListener("load", function () {
-  document.documentElement.style.overflow = "auto";
-  document.body.style.overflow = "auto";
-});
 </script>
 
 </body>
