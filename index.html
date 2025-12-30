@@ -232,9 +232,19 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
 </div>
 <script>
 document.getElementById('navMarket').addEventListener('click', () => {
+  // Reset category state
+  activeCategory = "all";
+
+  // Reset active tab UI
+  document.querySelectorAll("#cfc-category-tabs .btn").forEach(b => b.classList.remove("active"));
+  const allBtn = document.querySelector('#cfc-category-tabs [data-cat="all"]');
+  if (allBtn) allBtn.classList.add("active");
+
+  // Switch view + re-render
   if (typeof switchView === 'function') {
     switchView('market');
   }
+  renderFilteredNFTs();
 });
 </script>
 
