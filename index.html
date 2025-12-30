@@ -2266,10 +2266,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const navRedeem = document.getElementById('navRedeem')
 
   if (navMarket){
-    navMarket.addEventListener('click', () => {
-      switchView('market')
-    })
-  }
+  navMarket.addEventListener('click', () => {
+    // Go to market view (existing behavior)
+    switchView('market');
+
+    // RESET filter back to All (this is the missing part)
+    try {
+      activeCategory = "all";
+
+      // Update tab highlight
+      document.querySelectorAll("#cfc-category-tabs .btn").forEach(b => b.classList.remove("active"));
+      const allBtn = document.querySelector('#cfc-category-tabs .btn[data-cat="all"]');
+      if (allBtn) allBtn.classList.add("active");
+
+      // Re-render the market grid
+      if (typeof renderFilteredNFTs === "function") renderFilteredNFTs();
+    } catch(e){}
+  })
+}
+
 
   if (navPurchases){
     navPurchases.addEventListener('click', async () => {
