@@ -231,9 +231,13 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
 </div>
 <script>
 document.getElementById('navMarket').addEventListener('click', () => {
-  if (typeof switchView === 'function') {
-    switchView('market');
-  }
+  const liveMarket = document.getElementById('cfc-market-live');
+  const purchases = document.getElementById('view-purchases');
+  const redeem = document.getElementById('view-redeem');
+
+  if (purchases) purchases.style.display = 'none';
+  if (redeem) redeem.style.display = 'none';
+  if (liveMarket) liveMarket.style.display = 'block';
 });
 </script>
 
