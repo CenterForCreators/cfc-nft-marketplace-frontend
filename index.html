@@ -2136,14 +2136,24 @@ ${it.website ? `
         <div class="muted" style="margin-top:6px;">
           Quantity: ${it.quantity_remaining}
         </div>
+<div class="row" style="justify-content:space-between;margin-top:14px;">
+  <div>
+    <div class="muted">Price</div>
 
-        <div class="row" style="justify-content:space-between;margin-top:14px;">
-          <div>
-            <div class="muted">Price</div>
-            <div><strong class="live-nft-xrp">${xrp} XRP</strong></div>
-            <div class="muted">·</div>
-            <div><strong>${it.price_rlusd} RLUSD</strong></div>
-          </div>
+    <div>
+      <strong>${it.price_rlusd} RLUSD</strong>
+    </div>
+
+    <div class="muted">·</div>
+
+    <div>
+      <strong
+        class="live-nft-xrp"
+        data-rlusd="${it.price_rlusd}">
+        ${xrp} XRP
+      </strong>
+    </div>
+  </div>
 
           <div class="row">
             <button class="btn small" onclick="cfc_pay_rlusd(${it.id})">Pay RLUSD</button>
