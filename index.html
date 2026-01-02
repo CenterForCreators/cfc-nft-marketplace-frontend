@@ -2021,53 +2021,14 @@ window.addEventListener("load", () => {
   const MARKET_PAY_XRP = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-xrp";
   const MARKET_PAY_RLUSD = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-rlusd";
 function openRedeemedContent(submissionId, metadataCid) {
-  fetch("https://gateway.pinata.cloud/ipfs/" + metadataCid)
-    .then(r => r.json())
-    .then(meta => {
-      const cidOrUri =
-        meta.content_html || meta.html_cid || meta.html || meta.book_html || meta.content;
-      if (!cidOrUri) return alert("Content not found");
+  const wallet = window.connectedAccount || "";
+  const url =
+    "./reader.html?submission_id=" + encodeURIComponent(submissionId) +
+    "&metadata_cid=" + encodeURIComponent(metadataCid) +
+    "&wallet=" + encodeURIComponent(wallet);
 
-      const cid = String(cidOrUri).replace("ipfs://", "").replace("ipfs/", "");
-      const htmlUrl = "https://gateway.pinata.cloud/ipfs/" + cid;
-
-      // OPEN CONTENT IN NEW TAB
-      const w = window.open(htmlUrl, "_blank");
-
-      // STEP 3: PAGE READ (unchanged)
-      setTimeout(() => {
-        try {
-          trackLearnAction(submissionId, "read", "page_open");
-        } catch {}
-      }, 60000);
-
-      // STEP 4: CHAPTER COMPLETED (H1)
-      if (w) {
-        const fired = new Set();
-        const poll = setInterval(() => {
-          try {
-            const doc = w.document;
-            if (!doc) return;
-
-            doc.querySelectorAll("h1").forEach((h, i) => {
-              const r = h.getBoundingClientRect();
-              if (r.top >= 0 && r.top < w.innerHeight * 0.4) {
-                const key = "chapter_" + i;
-                if (fired.has(key)) return;
-                fired.add(key);
-
-                trackLearnAction(submissionId, "chapter", key);
-              }
-            });
-          } catch {}
-        }, 1500);
-
-        w.addEventListener("beforeunload", () => clearInterval(poll));
-      }
-    })
-    .catch(() => alert("Failed to open content"));
+  window.open(url, "_blank");
 }
-  window.cfc_xrp_usd = null;
 
   async function cfc_fetchXrpUsd(){
     try {
