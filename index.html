@@ -2020,7 +2020,7 @@ window.addEventListener("load", () => {
   const MARKET_API = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/all";
   const MARKET_PAY_XRP = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-xrp";
   const MARKET_PAY_RLUSD = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-rlusd";
- function openRedeemedContent(metadataCid) {
+function openRedeemedContent(submissionId, metadataCid) {
   fetch("https://gateway.pinata.cloud/ipfs/" + metadataCid)
     .then(r => r.json())
     .then(meta => {
@@ -2032,22 +2032,41 @@ window.addEventListener("load", () => {
       const htmlUrl = "https://gateway.pinata.cloud/ipfs/" + cid;
 
       // OPEN CONTENT IN NEW TAB
-      window.open(htmlUrl, "_blank");
+      const w = window.open(htmlUrl, "_blank");
 
-      // STEP 3: READ TRACKING (fires once after 60s)
+      // STEP 3: PAGE READ (unchanged)
       setTimeout(() => {
         try {
-        trackLearnAction(
-  metadataCid, // TEMP placeholder so it fires safely
-  "read",
-  "page_open"
-);
+          trackLearnAction(submissionId, "read", "page_open");
         } catch {}
       }, 60000);
+
+      // STEP 4: CHAPTER COMPLETED (H1)
+      if (w) {
+        const fired = new Set();
+        const poll = setInterval(() => {
+          try {
+            const doc = w.document;
+            if (!doc) return;
+
+            doc.querySelectorAll("h1").forEach((h, i) => {
+              const r = h.getBoundingClientRect();
+              if (r.top >= 0 && r.top < w.innerHeight * 0.4) {
+                const key = "chapter_" + i;
+                if (fired.has(key)) return;
+                fired.add(key);
+
+                trackLearnAction(submissionId, "chapter", key);
+              }
+            });
+          } catch {}
+        }, 1500);
+
+        w.addEventListener("beforeunload", () => clearInterval(poll));
+      }
     })
     .catch(() => alert("Failed to open content"));
 }
-
   window.cfc_xrp_usd = null;
 
   async function cfc_fetchXrpUsd(){
@@ -2409,7 +2428,7 @@ async function loadMyPurchases() {
         <h3>${o.name}</h3>
         <div class="muted">Status: ${o.status}</div>
         <button class="btn small" onclick="startRedeem(${o.id})">Redeem</button>
-        <button class="btn small secondary" onclick="openRedeemedContent(o.metadata_cid)">Open Content</button>
+        <button class="btn small secondary" onclick="openRedeemedContent(o.submission_id, o.metadata_cid)">Open Content</button>
 
       </div>
     `).join('')
