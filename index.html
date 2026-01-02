@@ -2020,7 +2020,7 @@ window.addEventListener("load", () => {
   const MARKET_API = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/all";
   const MARKET_PAY_XRP = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-xrp";
   const MARKET_PAY_RLUSD = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-rlusd";
-  function openRedeemedContent(metadataCid) {
+ function openRedeemedContent(metadataCid) {
   fetch("https://gateway.pinata.cloud/ipfs/" + metadataCid)
     .then(r => r.json())
     .then(meta => {
@@ -2030,11 +2030,23 @@ window.addEventListener("load", () => {
 
       const cid = String(cidOrUri).replace("ipfs://", "").replace("ipfs/", "");
       const htmlUrl = "https://gateway.pinata.cloud/ipfs/" + cid;
+
+      // OPEN CONTENT IN NEW TAB
       window.open(htmlUrl, "_blank");
+
+      // STEP 3: READ TRACKING (fires once after 60s)
+      setTimeout(() => {
+        try {
+        trackLearnAction(
+  metadataCid, // TEMP placeholder so it fires safely
+  "read",
+  "page_open"
+);
+        } catch {}
+      }, 60000);
     })
     .catch(() => alert("Failed to open content"));
 }
-
 
   window.cfc_xrp_usd = null;
 
