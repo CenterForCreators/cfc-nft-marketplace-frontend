@@ -1,1 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CFC Reader</title>
+<style>
+  body{margin:0;background:#fff;font-family:Arial,sans-serif}
+  .topbar{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;padding:10px 14px;z-index:10}
+  .muted{color:#666;font-size:14px}
+  .wrap{max-width:980px;margin:0 auto;padding:16px}
+  .cfc-learn-box{max-width:980px;margin:22px auto;padding:14px 16px;border:1px solid #ddd;border-radius:12px}
+  .cfc-learn-title{font-weight:700;margin:0 0 10px 0}
+  .cfc-learn-item{margin:10px 0;padding:10px 12px;border:1px solid #eee;border-radius:10px;background:#fafafa}
+  .cfc-learn-btn{margin-top:8px;padding:8px 10px;border:0;border-radius:10px;background:#111;color:#fff;cursor:pointer;font-weight:700}
+  .cfc-learn-done{display:inline-block;margin-left:10px;color:#1a7f37;font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="muted" id="status">Loading…</div>
+</div>
+
+<div class="wrap" id="content"></div>
+
+<script>
+const CREATOR_BACKEND = "https://cfc-nft-creator-backend.onrender.com";
+
+function qp(name){
+  return new URLSearchParams(location.search).get(name) || "";
+}
+
+const metadataCid = qp("metadata_cid");
+const submissionId = qp("submission_id");
+const wallet = qp("wallet"); // passed from marketplace
+
+function trackLearnAction(actionType, actionRef){
+  if (!wallet || !submissionId) return;
+  fetch(`${CREATOR_BACKEND}/api/learn/track`, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      wallet,
+      submission_id: submissionId,
+      action_type: actionType,
+      action_ref: actionRef
+    })
+  }).catch(()=>{});
+}
+
+function parseLearnMap(learnRaw){
+  const chapterMap = {};
+  const lines = String(learnRaw || "").split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  let current = null;
+
+  for (const line of lines){
+    const ch = line.match(/^chapter\s*(\d+)/i) || line.match(/^section\s*(\d+)/i);
+    if (ch){
+      current = String(ch[1]);
+      if (!chapterMap[current]) chapterMap[current] = [];
+      continue;
+    }
+    if (current) chapterMap[current].push(line);
+  }
+  return chapterMap;
+}
+
+function buildLearnBox(chNum, items){
+  if (!items || !items.length) return null;
+
+  const box = document.createElement("div");
+  box.className = "cfc-learn-box";
+  box.innerHTML = `<div class="cfc-learn-title">Learn & Earn Activities — Chapter ${chNum}</div>`;
+
+  items.forEach((t, idx) => {
+    const ref = `chapter_${chNum}_item_${idx+1}`;
+    const btnId = `cfcLearnBtn_${chNum}_${idx+1}`;
+
+    const item = document.createElement("div");
+    item.className = "cfc-learn-item";
+    item.innerHTML = `
+      <div>${String(t).replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>
+      <button class="cfc-learn-btn" id="${btnId}">Mark Complete</button>
+    `;
+
+    item.querySelector("button").addEventListener("click", () => {
+      trackLearnAction("activity", ref);
+      const b = item.querySelector("button");
+      b.disabled = true;
+      b.textContent = "Completed";
+      const done = document.createElement("span");
+      done.className = "cfc-learn-done";
+      done.textContent = "✓ Logged";
+      b.parentNode.appendChild(done);
+    });
+
+    box.appendChild(item);
+  });
+
+  return box;
+}
+
+(async function init(){
+  const status = document.getElementById("status");
+  const content = document.getElementById("content");
+
+  if (!metadataCid){
+    status.textContent = "Missing metadata.";
+    return;
+  }
+
+  // Load metadata
+  let meta;
+  try{
+    const r = await fetch("https://gateway.pinata.cloud/ipfs/" + metadataCid);
+    meta = await r.json();
+  }catch(e){
+    status.textContent = "Failed to load metadata.";
+    return;
+  }
+
+  // Find the HTML CID in metadata
+  const cidOrUri = meta.content_html || meta.html_cid || meta.html || meta.book_html || meta.content;
+  if (!cidOrUri){
+    status.textContent = "Content not found in metadata.";
+    return;
+  }
+
+  const htmlCid = String(cidOrUri).replace("ipfs://","").replace("ipfs/","");
+  const htmlUrl = "https://gateway.pinata.cloud/ipfs/" + htmlCid;
+
+  // Load the creator HTML as text, then render inside this page
+  let htmlText = "";
+  try{
+    htmlText = await (await fetch(htmlUrl)).text();
+  }catch(e){
+    status.textContent = "Failed to load content HTML.";
+    return;
+  }
+
+  // Render the HTML (simple + safe for your use-case)
+  content.innerHTML = htmlText;
+
+  // Step 3: page read (fires once after 60s)
+  setTimeout(() => trackLearnAction("read","page_open"), 60000);
+
+  // Step 4: chapter completed tracking (H1 entering view)
+  const firedCh = new Set();
+  setInterval(() => {
+    try{
+      document.querySelectorAll("h1").forEach((h, i) => {
+        const r = h.getBoundingClientRect();
+        if (r.top >= 0 && r.top < window.innerHeight * 0.4){
+          const key = "chapter_" + i;
+          if (firedCh.has(key)) return;
+          firedCh.add(key);
+          trackLearnAction("chapter", key);
+        }
+      });
+    }catch(e){}
+  }, 1500);
+
+  // Step 5: inject Learn & Earn activities after matching H1 chapters
+  const learnEnabled = !!(meta.learn && meta.learn.enabled);
+  const learnRaw = (meta.learn && meta.learn.content) ? String(meta.learn.content) : "";
+  const chapterMap = learnEnabled ? parseLearnMap(learnRaw) : {};
+
+  if (learnEnabled && Object.keys(chapterMap).length){
+    // Try to place boxes after "Chapter X" h1. Fallback: after first h1.
+    Object.keys(chapterMap).forEach(chNum => {
+      const box = buildLearnBox(chNum, chapterMap[chNum]);
+      if (!box) return;
+
+      const allH1 = Array.from(document.querySelectorAll("h1"));
+      let target = allH1.find(h => new RegExp(`^\\s*Chapter\\s*${chNum}\\b`, "i").test(h.textContent || ""));
+      if (!target) target = allH1[0];
+      if (target && target.parentNode){
+        target.insertAdjacentElement("afterend", box);
+      } else {
+        content.appendChild(box);
+      }
+    });
+  }
+
+  status.textContent = "Loaded.";
+})();
+</script>
+
+</body>
+</html>
 
