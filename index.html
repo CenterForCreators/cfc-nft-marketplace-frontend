@@ -17,36 +17,6 @@
   <script>
     const client = new xrpl.Client('wss://s1.ripple.com');
   </script>
- <script>
-/* ================================
-   CFC LEARN-TO-EARN (TRACK ONLY)
-   Safe / Add-Only / No Regressions
-================================ */
-
-async function trackLearnAction(submissionId, actionType, actionRef) {
-  if (!window.connectedAccount) {
-    console.warn("Wallet not connected — learn action not tracked");
-    return;
-  }
-
-  try {
-    await fetch("https://cfc-nft-creator-backend.onrender.com/api/learn/track", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        wallet: window.connectedAccount,
-        submission_id: submissionId,
-        action_type: actionType,
-        action_ref: actionRef
-      })
-    });
-
-    console.log("Learn action tracked:", actionType, actionRef);
-  } catch (e) {
-    console.error("Learn tracking failed", e);
-  }
-}
-</script> 
 
   <!-- BUILD TAG: CFC-OK -->
   <meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
@@ -2050,6 +2020,21 @@ window.addEventListener("load", () => {
   const MARKET_API = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/all";
   const MARKET_PAY_XRP = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-xrp";
   const MARKET_PAY_RLUSD = "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-rlusd";
+  function openRedeemedContent(metadataCid) {
+  fetch("https://gateway.pinata.cloud/ipfs/" + metadataCid)
+    .then(r => r.json())
+    .then(meta => {
+      const cidOrUri =
+        meta.content_html || meta.html_cid || meta.html || meta.book_html || meta.content;
+      if (!cidOrUri) return alert("Content not found");
+
+      const cid = String(cidOrUri).replace("ipfs://", "").replace("ipfs/", "");
+      const htmlUrl = "https://gateway.pinata.cloud/ipfs/" + cid;
+      window.open(htmlUrl, "_blank");
+    })
+    .catch(() => alert("Failed to open content"));
+}
+
 
   window.cfc_xrp_usd = null;
 
@@ -2412,6 +2397,8 @@ async function loadMyPurchases() {
         <h3>${o.name}</h3>
         <div class="muted">Status: ${o.status}</div>
         <button class="btn small" onclick="startRedeem(${o.id})">Redeem</button>
+        <button class="btn small secondary" onclick="openRedeemedContent(o.metadata_cid)">Open Content</button>
+
       </div>
     `).join('')
 
