@@ -613,26 +613,50 @@ function checkCaptcha(){
 })();
 </script>
 <script>
-    // Unified pay functions (server redirect via your Render backend)
-    function payRLUSD(){ window.open('https://cfc-faucet.onrender.com/api/pay-rlusd','_blank'); }
-    function payXRP(){ window.open('https://cfc-faucet.onrender.com/api/pay-xrp','_blank'); }
-    function payItemRLUSD(label){ window.open('https://cfc-faucet.onrender.com/api/pay-rlusd','_blank'); }
-    function payItemXRP(label){ window.open('https://cfc-faucet.onrender.com/api/pay-xrp','_blank'); }
-  </script>
+async function payXRP(nftId) {
+  const r = await fetch(
+    "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-xrp",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: nftId })
+    }
+  );
+
+  const data = await r.json();
+  if (data.link) {
+    window.location.href = data.link;
+  } else {
+    alert("Payment failed");
+  }
+}
+
+async function payRLUSD(nftId) {
+  const r = await fetch(
+    "https://cfc-nft-shared-mint-backend.onrender.com/api/market/pay-rlusd",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: nftId })
+    }
+  );
+
+  const data = await r.json();
+  if (data.link) {
+    window.location.href = data.link;
+  } else {
+    alert("Payment failed");
+  }
+}
+</script>
+
 <script>
     (function(){
       function bind(id, fn){
         var el = document.getElementById(id);
         if (el && !el.__bound){ el.__bound = true; el.addEventListener('click', function(ev){ ev.preventDefault(); fn(); }); }
       }
-      function bindAll(){
-        bind('buy1rlusd', function(){ payItemRLUSD('service'); });
-        bind('buy1xrp', function(){ payItemXRP('service'); });
-        bind('buy2rlusd', function(){ payItemRLUSD('workshop'); });
-        bind('buy2xrp', function(){ payItemXRP('workshop'); });
-        bind('buy3rlusd', function(){ payItemRLUSD('book'); });
-        bind('buy3xrp', function(){ payItemXRP('book'); });
-      }
+
      // ---- begin safe init (keeps wallet + claim working, no regressions) ----
 // Run wallet/core init immediately if your site defines it.
 if (typeof boot === 'function') {
