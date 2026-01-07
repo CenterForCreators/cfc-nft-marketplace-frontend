@@ -1076,7 +1076,7 @@ try {
         }
         // Post to faucet endpoint
         const payload = { account: address, captcha_ok: true };
-        const ep = (window.CONFIG && window.CONFIG.FAUCET_ENDPOINT) ? window.CONFIG.FAUCET_ENDPOINT : "%FAUCET_ENDPOINT%";
+        const ep = (window.CONFIG && window.CONFIG.FAUCET_ENDPOINT) ? window.CONFIG.FAUCET_ENDPOINT : "https://cfc-faucet.onrender.com/api/faucet";
         const r = await fetch(ep, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
         const j = await r.json().catch(()=>({}));
         if(r.ok){
