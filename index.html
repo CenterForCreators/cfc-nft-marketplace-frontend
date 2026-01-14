@@ -5,6 +5,8 @@
 
 
 
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -2052,11 +2054,13 @@ function openRedeemedContent(submissionId, metadataCid) {
   window.open(url, "_blank");
 }
 
- async function cfc_fetchXrpUsd(){
-  // Disabled temporarily to avoid CORS / rate-limit issues
-  window.cfc_xrp_usd = null;
-  return;
-}
+  async function cfc_fetchXrpUsd(){
+    try {
+      const r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd");
+      const j = await r.json();
+      window.cfc_xrp_usd = j.ripple.usd;
+    } catch(e){}
+  }
 
   function cfc_calcXrp(usd){
     if(!window.cfc_xrp_usd) return "—";
@@ -2152,19 +2156,14 @@ ${it.website ? `
     </div>
   </div>
 
-         <div class="row">
-  <button class="btn small" disabled style="opacity:0.5;cursor:not-allowed;">
-    Pay RLUSD (disabled)
-  </button>
-  <button class="btn small secondary" onclick="cfc_pay_xrp(${it.id})">
-    Pay XRP
-  </button>
-</div>
-</div>
-</div>
-`;
-}
-
+          <div class="row">
+            <button class="btn small" onclick="cfc_pay_rlusd(${it.id})">Pay RLUSD</button>
+            <button class="btn small secondary" onclick="cfc_pay_xrp(${it.id})">Pay XRP</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 let cfcMarketLoaded = false;
 
 async function cfc_load_market(){
