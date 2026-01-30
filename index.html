@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -2020,12 +2021,6 @@ window.addEventListener("DOMContentLoaded", () => {
   requestAnimationFrame(sendHeightIfChanged);
   setTimeout(sendHeightIfChanged, 50);
   setTimeout(sendHeightIfChanged, 250);
-
-  document.querySelectorAll("img").forEach(img => {
-    if (!img.complete) {
-      img.addEventListener("load", sendHeightIfChanged);
-    }
-  });
 });
 
 // keep a light periodic check
@@ -2035,9 +2030,6 @@ window.addEventListener("load", () => {
   sendHeightIfChanged();
   requestAnimationFrame(sendHeightIfChanged);
 });
-
-setTimeout(sendHeightIfChanged, 1500);
-
 
   // --------------------------------
   // LIVE MARKETPLACE
