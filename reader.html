@@ -36,6 +36,19 @@ const submissionId = qp("submission_id");
 const wallet = qp("wallet"); // passed from marketplace
 
 function trackLearnAction(actionType, actionRef){
+  let rewardPingTimer;
+
+function pingForRewards(){
+  if (!wallet) return;
+
+  fetch(`${CREATOR_BACKEND}/api/learn/payout`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ wallet })
+  }).catch(()=>{});
+  
+}
+
   if (!wallet || !submissionId) return;
   fetch(`${CREATOR_BACKEND}/api/learn/track`, {
     method:"POST",
@@ -47,6 +60,9 @@ function trackLearnAction(actionType, actionRef){
       action_ref: actionRef
     })
   }).catch(()=>{});
+  clearTimeout(rewardPingTimer);
+rewardPingTimer = setTimeout(pingForRewards, 4000);
+
 }
 
 function parseLearnMap(learnRaw){
