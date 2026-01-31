@@ -2439,6 +2439,21 @@ async function loadMyPurchases() {
 }
 </script>
 <script>
+  function openReader(metaCid, submissionId){
+  if (!window.connectedAccount){
+    alert("Connect your wallet first.");
+    return;
+  }
+
+  const url =
+    "https://centerforcreators.com/reader.html" +
+    "?metadata_cid=" + encodeURIComponent(metaCid) +
+    "&submission_id=" + encodeURIComponent(submissionId) +
+    "&wallet=" + encodeURIComponent(window.connectedAccount);
+
+  window.open(url, "_blank");
+}
+
 function startRedeem(orderId){
   document.getElementById('redeemOrderId').value = orderId
   document.getElementById('redeemMsg').textContent = ''
