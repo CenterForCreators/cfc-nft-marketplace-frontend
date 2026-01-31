@@ -39,6 +39,18 @@ function trackLearnAction(actionType, actionRef){
   let rewardPingTimer;
 
 function pingForRewards(){
+  fetch(`${CREATOR_BACKEND}/api/admin/payout-learn-rewards`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      password: "YOUR_ADMIN_PASSWORD"
+    })
+  }).catch(()=>{});
+}
+
+  let rewardPingTimer;
+
+function pingForRewards(){
   if (!wallet) return;
 
   fetch(`${CREATOR_BACKEND}/api/learn/payout`, {
@@ -46,7 +58,9 @@ function pingForRewards(){
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ wallet })
   }).catch(()=>{});
-  
+  clearTimeout(rewardPingTimer);
+rewardPingTimer = setTimeout(pingForRewards, 4000);
+
 }
 
   if (!wallet || !submissionId) return;
