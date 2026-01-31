@@ -2423,7 +2423,10 @@ async function loadMyPurchases() {
         <h3>${o.name}</h3>
         <div class="muted">Status: ${o.status}</div>
         <button class="btn small" onclick="startRedeem(${o.id})">Redeem</button>
-        <button class="btn small secondary" onclick="openRedeemedContent(o.submission_id, o.metadata_cid)">Open Content</button>
+        <button class="btn small secondary"
+  onclick="openReader(o.metadata_cid, o.submission_id)">
+  Open Content
+</button>
 
       </div>
     `).join('')
