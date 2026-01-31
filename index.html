@@ -320,6 +320,20 @@ document.querySelectorAll('#cfc-category-tabs button').forEach(btn => {
 <div class="muted" id="purchasesTip" style="text-align:center; margin:0 0 14px 0; display:none;">
   Tip: After you redeem a book/workshop, click “Open Content” to read and earn CFC.
 </div>
+<script>
+function openReader(metaCid, submissionId){
+  if (!window.connectedAccount){
+    alert("Connect your wallet first.");
+    return;
+  }
+  const url =
+    "https://centerforcreators.com/reader.html" +
+    "?metadata_cid=" + encodeURIComponent(metaCid) +
+    "&submission_id=" + encodeURIComponent(submissionId) +
+    "&wallet=" + encodeURIComponent(window.connectedAccount);
+  window.open(url, "_blank");
+}
+</script>
 
   <div class="grid" id="purchasesGrid" style="display:none"></div>
 </section>
