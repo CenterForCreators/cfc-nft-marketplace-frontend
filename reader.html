@@ -39,15 +39,11 @@ function trackLearnAction(actionType, actionRef){
   let rewardPingTimer;
 
 function pingForRewards(){
-  fetch(`${CREATOR_BACKEND}/api/admin/payout-learn-rewards`, {
+  fetch(`${CREATOR_BACKEND}/api/learn/auto-payout`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      password: "YOUR_ADMIN_PASSWORD"
-    })
+    headers: { "Content-Type": "application/json" }
   }).catch(()=>{});
 }
-
   let rewardPingTimer;
 
 function pingForRewards(){
