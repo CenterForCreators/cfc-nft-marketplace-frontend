@@ -385,8 +385,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const buy3xrp = document.getElementById('buy3xrp')
   if (buy3xrp) buy3xrp.addEventListener('click', () => buyWithXRP(CONFIG.ITEMS[2]))
 
-  const claimBtn = document.getElementById('claimBtn')
-  if (claimBtn) claimBtn.addEventListener('click', claimFaucet)
 
   if (typeof switchView === 'function') {
     switchView('market')
@@ -1055,36 +1053,7 @@ try {
   // Provide a global for other handlers (Claim) to know connection
   window.__cfcConnectedAccount = () => connectedAccount;
 
-  // CLAIM handler: reuse existing connection, do not force second sign-in
-  const claimBtn = document.getElementById('claimBtn');
-  if(claimBtn){
-    claimBtn.addEventListener('click', async function(){
-      try{
-        const acct = connectedAccount;
-        if(!acct){
-          // if not connected yet, try to connect once
-          await connectXumm();
-        }
-        const address = connectedAccount;
-        if(!address){
-          toast && toast("Please connect Xaman first.");
-          return;
-        }
-        // Post to faucet endpoint
-        const payload = { account: address, captcha_ok: true };
-        const ep = (window.CONFIG && window.CONFIG.FAUCET_ENDPOINT) ? window.CONFIG.FAUCET_ENDPOINT : "https://cfc-faucet.onrender.com/api/faucet";
-        const r = await fetch(ep, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-        const j = await r.json().catch(()=>({}));
-        if(r.ok){
-          toast && toast("Claim successful");
-          fetchBalances(address);
-        }else{
-          toast && toast(j && (j.error || j.message) ? String(j.error || j.message) : "Claim failed");
-        }
-      }catch(err){
-        console.error(err);
-        toast && toast("Claim error");
-      }
+
     });
   }
 
@@ -1573,36 +1542,6 @@ try {
     return r.json();
   }
 
-  // Wire CLAIM if a button exists and not already wired
-  if (claimBtn && !claimBtn.__wired){
-    claimBtn.__wired = true;
-    claimBtn.addEventListener('click', async function(){
-      if (capQ && capA){
-        var ans = parseInt(capA.value||'NaN',10);
-        if (isNaN(ans) || ans !== (a+b)){
-          if (claimStatus){ claimStatus.className='status err'; claimStatus.textContent='Wrong math answer'; }
-          return;
-        }
-      }
-      if (claimStatus){ claimStatus.className='status warn'; claimStatus.textContent='Sending…'; }
-      if (claimSpin){ claimSpin.style.display='inline-block'; }
-      try{
-        const j = await postJson(FAUCET_ENDPOINT, { captcha_ok:true });
-        if (j && j.ok){
-          if (claimStatus){ claimStatus.className='status ok'; claimStatus.textContent='✅ 25 CFC sent!'; }
-          regen();
-        }else{
-          if (claimStatus){ 
-  claimStatus.className='status err'; 
-  claimStatus.textContent=''; 
-}
-
-        }
-      }catch(e){
-        if (claimStatus){ claimStatus.className='status err'; claimStatus.textContent='Network error'; }
-      }finally{
-        if (claimSpin){ claimSpin.style.display='none'; }
-      }
     });
   }
 
@@ -1781,15 +1720,7 @@ function cleanTexts(){
       }catch(e){ console.error('Xaman connect error', e); }
     });
   }
-  if(claimBtn){
-    claimBtn.onclick = null;
-    claimBtn.addEventListener('click', function(e){
-      e.preventDefault();
-      if(typeof checkCaptcha==='function' ? checkCaptcha() : true){
-        if(typeof claimFaucet==='function') claimFaucet();
-      }
-    });
-  }
+  
   if(ans){ ans.addEventListener('input', function(){ if(typeof checkCaptcha==='function') checkCaptcha(); }); }
   if(typeof newCaptcha==='function') newCaptcha();
 })();
