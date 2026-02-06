@@ -2251,40 +2251,7 @@ async function loadMyPurchases() {
   }
 
   try {
-    const r = await fetch(
-      `https://cfc-nft-shared-mint-backend.onrender.com/api/orders/by-wallet/${window.connectedAccount}`
-    )
-    const orders = await r.json()
-
-    // No purchases
-    if (!orders.length) {
-      msg.style.display = 'block'
-      grid.style.display = 'none'
-      return
-    }
-
-    // Has purchases
-    msg.style.display = 'none'
-    grid.style.display = 'grid'
-
-    grid.innerHTML = orders.map(o => `
-      <div class="card">
-        <img class="nft-img" src="https://gateway.pinata.cloud/ipfs/${o.image_cid}" />
-        <h3 style="margin:10px 0">${o.name}</h3>
-        <div class="muted">Status: ${o.status}</div>
-       <button class="btn small" onclick="startRedeem(${o.id})">
-  Redeem
-</button>
-
-      </div>
-    `).join('')
-  } catch (e) {
-    console.error(e)
-    msg.style.display = 'block'
-    msg.textContent = 'Failed to load purchases.'
-    grid.style.display = 'none'
-  }
-}
+  
 </script>
 <script>
 async function loadMyPurchases() {
