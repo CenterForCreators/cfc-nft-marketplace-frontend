@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -489,64 +490,26 @@ async function connect(){
     }
   }catch(e){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Connection cancelled.'; }
 }
-</script>
-<script>
 
-async function claimFaucet() {
-  const spinner = document.getElementById('claimSpinner');
-  if (spinner) spinner.style.display = 'block';
 
-  try {
-    const signin = await xumm.payload.createAndSubscribe(
-      { txjson: { TransactionType: 'SignIn' } },
-      () => {}
-    );
-
-    if (signin?.created?.next) {
-      window.open(signin.created.next.always, '_blank');
-    }
-
+    const signin = await xumm.payload.createAndSubscribe({ txjson: { TransactionType: 'SignIn' } }, () => {});
+    if (signin?.created?.next) window.open(signin.created.next.always, '_blank');
     const res = await signin.resolved;
-
-    if (!res?.signed || !res?.response?.account) {
-      const m = document.getElementById('claimMsg');
-      if (m) m.textContent = 'Claim cancelled.';
-      return;
-    }
-
-    if (res.response.account !== window.connectedAccount) {
-      const m = document.getElementById('claimMsg');
-      if (m) m.textContent = 'Use the same wallet you connected.';
-      return;
-    }
-
+    if (!res?.signed || !res?.response?.account){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Claim cancelled.'; if(spinner) spinner.style.display='none'; return; }
+    if (res.response.account !== window.connectedAccount){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Use the same wallet you connected.'; if(spinner) spinner.style.display='none'; return; }
     const r = await fetch(CONFIG.FAUCET_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        payload_uuid: signin.created.uuid,
-        address: window.connectedAccount
-      })
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ payload_uuid: signin.created.uuid, address: window.connectedAccount })
     });
-
-    const data = await r.json().catch(() => ({}));
-    const m = document.getElementById('claimMsg');
-
-    if (r.ok) {
-      if (m) m.textContent = '✅ 25 CFC sent! Check your wallet soon.';
-    } else {
-      if (m) m.textContent = data?.error || 'Claim failed.';
-    }
-
-  } catch (e) {
-    const m = document.getElementById('claimMsg');
-    if (m) m.textContent = 'Network error.';
-  } finally {
-    if (spinner) spinner.style.display = 'none';
-    window.__cfcCaptchaPassed = false;
-  }
+    const data = await r.json().catch(()=>({}));
+    var m=document.getElementById('claimMsg');
+    if (r.ok) m && (m.textContent='✅ 25 CFC sent! Check your wallet soon.');
+    else m && (m.textContent=(data?.error || 'Claim failed.'));
+  }catch(e){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Network error.'; }
+  if(spinner) spinner.style.display='none';
+  window.__cfcCaptchaPassed=false;
 }
-</script>   
+</script>
 <script>
 // Simple math CAPTCHA: digits 0–9, refresh each time
 let _a = 0, _b = 0;
