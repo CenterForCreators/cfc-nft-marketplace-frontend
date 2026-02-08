@@ -2269,7 +2269,6 @@ async function loadMyPurchases() {
   }
 
   try {
-    console.log("MY PURCHASES — connectedAccount =", connectedAccount);
     const resp = await fetch(
    `https://cfc-nft-shared-mint-backend.onrender.com/api/orders/by-wallet/${window.connectedAccount}`
     )
