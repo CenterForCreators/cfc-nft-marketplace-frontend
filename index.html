@@ -491,23 +491,6 @@ async function connect(){
 }
 </script>
 <script>
-window.CFC = window.CFC || {};
-
-async function connect() {
-  try {
-    const res = await xumm.authorize();
-    if (res?.me?.account) {
-      window.connectedAccount = res.me.account;
-      const a = document.getElementById('address');
-      if (a) a.textContent = res.me.account;
-      const m = document.getElementById('claimMsg');
-      if (m) m.textContent = '';
-    }
-  } catch (e) {
-    const m = document.getElementById('claimMsg');
-    if (m) m.textContent = 'Connection cancelled.';
-  }
-}
 
 async function claimFaucet() {
   const spinner = document.getElementById('claimSpinner');
