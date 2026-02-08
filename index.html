@@ -8,10 +8,6 @@
   <!-- Xumm & XRPL SDKs -->
   <script src="https://xumm.app/assets/cdn/xumm.min.js"></script>
 
-  <!-- Initialize XRPL Client -->
-  <script>
-    const client = new xrpl.Client('wss://s1.ripple.com');
-  </script>
 
   <!-- BUILD TAG: CFC-OK -->
   <meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
@@ -2248,30 +2244,12 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 async function loadMyPurchases() {
   const grid = document.getElementById('purchasesGrid')
-  const msg  = document.getElementById('noPurchasesMsg')
-
-  if (!grid || !msg) return
-
-  // Wallet not connected
-  if (!window.connectedAccount) {
-    msg.style.display = 'block'
-    msg.textContent = 'Connect your wallet to see your purchases.'
-    grid.style.display = 'none'
-    return
-  }
-
-  try {
-  
-</script>
-<script>
-async function loadMyPurchases() {
-  const grid = document.getElementById('purchasesGrid')
   const noMsg = document.getElementById('noPurchasesMsg')
 
   if (!grid || !noMsg) return
 
   // Wallet not connected
-  if (!connectedAccount) {
+  if (!window.connectedAccount) {
     noMsg.textContent = 'Connect your wallet to see your purchases.'
     noMsg.style.display = 'block'
     grid.style.display = 'none'
@@ -2280,11 +2258,7 @@ async function loadMyPurchases() {
 
   try {
     const resp = await fetch(
-   const wallet = window.getActiveWallet();
-if (!wallet) return;
-
-fetch(`/api/orders/by-wallet/${wallet}`)
-
+      `https://cfc-nft-shared-mint-backend.onrender.com/api/orders/by-wallet/${window.connectedAccount}`
     )
 
     const orders = await resp.json()
@@ -2308,20 +2282,21 @@ fetch(`/api/orders/by-wallet/${wallet}`)
         <div class="muted">Status: ${o.status}</div>
         <button class="btn small" onclick="startRedeem(${o.id})">Redeem</button>
         <button class="btn small secondary"
-  onclick="openReader(o.metadata_cid, o.submission_id)">
-  Open Content
-</button>
-
+          onclick="openReader('${o.metadata_cid}', ${o.submission_id})">
+          Open Content
+        </button>
       </div>
     `).join('')
 
   } catch (e) {
+    console.error(e)
     noMsg.textContent = 'Failed to load purchases.'
     noMsg.style.display = 'block'
     grid.style.display = 'none'
   }
 }
 </script>
+
 <script>
   function openReader(metaCid, submissionId){
   if (!window.connectedAccount){
