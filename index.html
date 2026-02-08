@@ -2280,7 +2280,11 @@ async function loadMyPurchases() {
 
   try {
     const resp = await fetch(
-   `https://cfc-nft-shared-mint-backend.onrender.com/api/orders/by-wallet/${window.connectedAccount}`
+   const wallet = window.getActiveWallet();
+if (!wallet) return;
+
+fetch(`/api/orders/by-wallet/${wallet}`)
+
     )
 
     const orders = await resp.json()
@@ -2376,6 +2380,18 @@ async function submitRedeem(){
     msg.textContent = 'Network error.'
   }
 }
+</script>
+<script>
+/* === CFC FIX: single wallet source for purchases (NO side effects) === */
+window.getActiveWallet = function () {
+  return (
+    window.connectedAccount ||
+    sessionStorage.getItem("connectedAccount") ||
+    localStorage.getItem("xummAccount") ||
+    localStorage.getItem("xrpl_account") ||
+    ""
+  );
+};
 </script>
 
 </body>
