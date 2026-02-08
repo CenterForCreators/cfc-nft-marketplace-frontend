@@ -485,6 +485,7 @@ async function connect(){
     const res = await xumm.authorize();
     if (res?.me?.account){
       window.connectedAccount = res.me.account;
+      sessionStorage.setItem('connectedAccount', res.me.account);
       var a=document.getElementById('address'); if(a) a.textContent = res.me.account;
       var m=document.getElementById('claimMsg'); if(m) m.textContent='';
     }
@@ -702,6 +703,14 @@ try {
       });
     })();
   </script>
+  <script>
+if (!window.connectedAccount) {
+  const saved = sessionStorage.getItem('connectedAccount');
+  if (saved) {
+    window.connectedAccount = saved;
+  }
+}
+</script>
 <section class="card" id="join">
 <h2>Join the list</h2>
 <p class="muted">Get updates from CenterForCreators.com</p>
