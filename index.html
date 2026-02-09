@@ -46,6 +46,15 @@
   display: block;
   margin: 0 auto;
 }
+/* Force marketplace images to match My Purchases exactly */
+.market-card .nft-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin: 0;
+}
+  
     input[type="email"], input[type="text"]{width:100%;outline:none;padding:10px;border-radius:10px;border:1px solid #2a3a60;background:#0e1527;color:#e8f0ff}
     .kv{display:flex;gap:10px;align-items:center}
     .kv div:first-child{width:140px;color:#9fb0d1}
@@ -433,6 +442,9 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 <style>
+ #cfc-cap-ovl {
+  display: none !important;
+} 
 #cfc-cap-ovl{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;z-index:9999}
 #cfc-cap-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#121a2b;color:#f6f8ff;
   border:1px solid #202c45;border-radius:14px;padding:16px;min-width:280px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
