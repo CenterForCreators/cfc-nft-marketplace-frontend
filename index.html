@@ -2248,13 +2248,15 @@ async function loadMyPurchases() {
 
   if (!grid || !noMsg) return
 
-  // Wallet not connected
-  if (!window.connectedAccount) {
+ // Wallet not connected (only block on first load)
+if (!window.connectedAccount) {
+  if (!grid.innerHTML.trim()) {
     noMsg.textContent = 'Connect your wallet to see your purchases.'
     noMsg.style.display = 'block'
     grid.style.display = 'none'
-    return
   }
+  return
+}
 
   try {
     const resp = await fetch(
