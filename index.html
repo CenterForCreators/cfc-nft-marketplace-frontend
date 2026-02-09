@@ -2368,6 +2368,14 @@ window.getActiveWallet = function () {
   );
 };
 </script>
+<script>
+  if (!window.connectedAccount) {
+    const saved = sessionStorage.getItem('connectedAccount');
+    if (saved) {
+      window.connectedAccount = saved;
+    }
+  }
+</script>
 
 </body>
 </html>
