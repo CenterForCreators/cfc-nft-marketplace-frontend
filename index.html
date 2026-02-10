@@ -378,16 +378,18 @@ document.querySelectorAll('#cfc-category-tabs button').forEach(btn => {
   Tip: After you redeem a book/workshop, click “Open Content” to read and earn CFC.
 </div>
 <script>
-function openReader(metaCid, submissionId){
+function openReader(contentCid, submissionId){
   if (!window.connectedAccount){
     alert("Connect your wallet first.");
     return;
   }
+
   const url =
     "https://centerforcreators.com/reader.html" +
-    "?metadata_cid=" + encodeURIComponent(metaCid) +
+    "?content_cid=" + encodeURIComponent(contentCid) +
     "&submission_id=" + encodeURIComponent(submissionId) +
     "&wallet=" + encodeURIComponent(window.connectedAccount);
+
   window.open(url, "_blank");
 }
 </script>
@@ -2366,20 +2368,6 @@ if (!window.connectedAccount) {
 </script>
 
 <script>
-  function openReader(metaCid, submissionId){
-  if (!window.connectedAccount){
-    alert("Connect your wallet first.");
-    return;
-  }
-
-  const url =
-    "https://centerforcreators.com/reader.html" +
-    "?metadata_cid=" + encodeURIComponent(metaCid) +
-    "&submission_id=" + encodeURIComponent(submissionId) +
-    "&wallet=" + encodeURIComponent(window.connectedAccount);
-
-  window.open(url, "_blank");
-}
 
 function startRedeem(orderId){
   document.getElementById('redeemOrderId').value = orderId
