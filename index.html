@@ -73,6 +73,12 @@
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
     .card{background:var(--card);border:1px solid #202c45;border-radius:16px;padding:18px}
+  /* Match Marketplace card behavior exactly */
+.purchases-grid .card {
+  width: 100%;
+  max-width: 280px;
+}
+
   /* Match live NFTs to static NFT card width */
 .live-nft-card {
   max-width: none;
@@ -393,7 +399,7 @@ function openReader(contentCid, submissionId){
   window.open(url, "_blank");
 }
 </script>
-<div class="grid purchases-grid" id="purchasesGrid" style="display:none"></div>
+<div class="grid purchases-grid" id="purchasesGrid" style="display:none; justify-items:center;"></div>
  
 </section>
 
