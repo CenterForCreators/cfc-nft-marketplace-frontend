@@ -36,6 +36,17 @@
     .btn.ghost{background:transparent;border:1px solid #2a3a60;color:var(--text)}
     .btn.small{padding:8px 10px;font-size:14px}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+  /* Match Marketplace layout to My Purchases exactly */
+#cfc-market-grid,
+#purchasesGrid {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+#cfc-market-grid.grid,
+#purchasesGrid.grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
     .card{background:var(--card);border:1px solid #202c45;border-radius:16px;padding:18px}
   /* Match live NFTs to static NFT card width */
 .live-nft-card { max-width:280px; }
@@ -354,12 +365,6 @@ function openReader(metaCid, submissionId){
 </script>
 
   <div class="grid" id="purchasesGrid" style="display:none"></div>
-  /* Force Marketplace grid to match My Purchases width */
-#marketGrid,
-#purchasesGrid {
-  max-width: 1100px;
-  margin: 0 auto;
-}
 
 </section>
 
