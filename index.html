@@ -42,6 +42,12 @@
   max-width:1100px;
   margin:0 auto;
 }
+  /* My Purchases should never stretch single items */
+.purchases-grid {
+  grid-template-columns: repeat(auto-fill, 280px);
+  justify-content: start;
+}
+
   /* Force identical spacing between Marketplace and My Purchases */
 #cfc-market-grid.grid,
 #purchasesGrid.grid {
@@ -378,7 +384,7 @@ function openReader(metaCid, submissionId){
 }
 </script>
 
-  <div class="grid" id="purchasesGrid" style="display:none"></div>
+  <div class="grid purchases-grid" id="purchasesGrid" style="display:none"></div>
 
 </section>
 
