@@ -37,7 +37,7 @@
     .btn.small{padding:8px 10px;font-size:14px}
    .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
   gap:12px;
   max-width:1100px;
   margin:0 auto;
@@ -2333,10 +2333,13 @@ if (!window.connectedAccount) {
         <h3>${o.name}</h3>
         <div class="muted">Status: ${o.status}</div>
         <button class="btn small" onclick="startRedeem(${o.id})">Redeem</button>
-        <button class="btn small secondary"
-          onclick="openReader('${o.metadata_cid}', ${o.submission_id})">
-          Open Content
-        </button>
+      ${o.content_cid ? `
+<button class="btn small secondary"
+  onclick="openReader('${o.content_cid}', ${o.submission_id})">
+  Open Content
+</button>
+` : ``}
+ 
       </div>
     `).join('')
 
