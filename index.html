@@ -2348,7 +2348,7 @@ if (!window.connectedAccount) {
         <button class="btn small" onclick="startRedeem(${o.id})">Redeem</button>
       ${o.content_cid ? `
 <button class="btn small secondary"
-  onclick="openReader('${o.content_cid}', ${o.submission_id})">
+  onclick="openReader('${o.metadata_cid}', ${o.submission_id})">
   Open Content
 </button>
 ` : ``}
