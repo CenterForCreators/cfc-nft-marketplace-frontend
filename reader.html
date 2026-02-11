@@ -36,14 +36,7 @@ const submissionId = qp("submission_id");
 const wallet = qp("wallet"); // passed from marketplace
 
 function trackLearnAction(actionType, actionRef){
-  let rewardPingTimer;
-
-function pingForRewards(){
-  fetch(`${CREATOR_BACKEND}/api/learn/auto-payout`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" }
-  }).catch(()=>{});
-}
+ 
   let rewardPingTimer;
 
 function pingForRewards(){
