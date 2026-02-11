@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>CFC Reader</title>
+  <script src="https://unpkg.com/epubjs/dist/epub.min.js"></script>
 <style>
   body{margin:0;background:#fff;font-family:Arial,sans-serif}
   .topbar{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;padding:10px 14px;z-index:10}
@@ -219,7 +220,20 @@ if (!cidOrUri) {
   }
 
   // Render the HTML (simple + safe for your use-case)
-  content.innerHTML = htmlText;
+ content.innerHTML = "<div id='reader'></div>";
+
+const book = ePub({
+  content: htmlText
+});
+
+const rendition = book.renderTo("reader", {
+  width: "100%",
+  height: "80vh",
+  flow: "paginated",
+  manager: "continuous"
+});
+
+rendition.display();
 
   // Step 3: page read (fires once after 60s)
   setTimeout(() => trackLearnAction("read","page_open"), 60000);
