@@ -375,7 +375,7 @@ document.querySelectorAll('#cfc-category-tabs button').forEach(btn => {
   Tip: After you redeem a book/workshop, click “Open Content” to read and earn CFC.
 </div>
 <script>
-function openReader(contentCid, submissionId){
+function openReader(metadataCid, submissionId){
   if (!window.connectedAccount){
     alert("Connect your wallet first.");
     return;
@@ -383,7 +383,7 @@ function openReader(contentCid, submissionId){
 
   const url =
     "https://centerforcreators.github.io/cfc-nft-marketplace-frontend/reader.html" +
-    "?content_cid=" + encodeURIComponent(contentCid) +
+    "?metadata_cid=" + encodeURIComponent(metadataCid) +
     "&submission_id=" + encodeURIComponent(submissionId) +
     "&wallet=" + encodeURIComponent(window.connectedAccount);
 
