@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>CFC Reader</title>
-  <script src="https://unpkg.com/epubjs/dist/epub.min.js"></script>
 <style>
   body{margin:0;background:#fff;font-family:Arial,sans-serif}
   .topbar{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;padding:10px 14px;z-index:10}
@@ -49,6 +48,21 @@
 body {
   background: #f4f5f7;
 }
+/* ===== Kindle-style PAGED layout (HTML, not EPUB) ===== */
+#readerShell{max-width:760px;margin:24px auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.08)}
+#readerTop{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #eee}
+#readerTop button{padding:8px 10px;border:0;border-radius:10px;background:#111;color:#fff;cursor:pointer;font-weight:700}
+#readerTop button:disabled{opacity:.4;cursor:not-allowed}
+#readerViewport{height:80vh;overflow:hidden}
+#readerPages{
+  height:100%;
+  padding:20px 22px;
+  column-width: 760px;
+  column-gap: 40px;
+  column-fill: auto;
+}
+#readerPages img{max-width:100%;display:block;margin:24px auto}
+#readerPages p{margin:1em 0}
 
 </style>
 </head>
@@ -195,12 +209,12 @@ if (!cidOrUri) {
     }
 
     const htmlText2 = await r2.text();
-    content.innerHTML = htmlText2;
+   htmlText = htmlText2; // reuse the same paging renderer below
 
     // Learn-to-earn hooks stay the same:
     setTimeout(() => trackLearnAction("read","page_open"), 60000);
 
-    return; // ✅ stop here (we already rendered)
+   
   } catch (e) {
     status.textContent = "Content not found in metadata.";
     return;
@@ -219,21 +233,60 @@ if (!cidOrUri) {
     return;
   }
 
-  // Render the HTML (simple + safe for your use-case)
- content.innerHTML = "<div id='reader'></div>";
+ // ===== Kindle-style HTML paging renderer (no EPUB) =====
+content.innerHTML = `
+  <div id="readerShell">
+    <div id="readerTop">
+      <button id="prevPage" type="button">← Prev</button>
+      <div class="muted" id="pageInfo">Page</div>
+      <button id="nextPage" type="button">Next →</button>
+    </div>
+    <div id="readerViewport">
+      <div id="readerPages"></div>
+    </div>
+  </div>
+`;
 
-const book = ePub({
-  content: htmlText
+const pagesEl = document.getElementById("readerPages");
+const vp = document.getElementById("readerViewport");
+const prevBtn = document.getElementById("prevPage");
+const nextBtn = document.getElementById("nextPage");
+const pageInfo = document.getElementById("pageInfo");
+
+// put the HTML into the paged columns container
+pagesEl.innerHTML = htmlText;
+
+// one "page" = viewport width
+function pageWidth(){ return vp.clientWidth; }
+
+function updateButtons(){
+  const max = pagesEl.scrollWidth - vp.clientWidth;
+  const x = pagesEl.scrollLeft;
+  prevBtn.disabled = x <= 0;
+  nextBtn.disabled = x >= max - 2;
+  const p = Math.max(1, Math.round(x / pageWidth()) + 1);
+  pageInfo.textContent = "Page " + p;
+}
+
+prevBtn.addEventListener("click", () => {
+  pagesEl.scrollLeft = Math.max(0, pagesEl.scrollLeft - pageWidth());
+  updateButtons();
+});
+nextBtn.addEventListener("click", () => {
+  pagesEl.scrollLeft = Math.min(pagesEl.scrollWidth, pagesEl.scrollLeft + pageWidth());
+  updateButtons();
 });
 
-const rendition = book.renderTo("reader", {
-  width: "100%",
-  height: "80vh",
-  flow: "paginated",
-  manager: "continuous"
+// allow keyboard arrows
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft") prevBtn.click();
+  if (e.key === "ArrowRight") nextBtn.click();
 });
 
-rendition.display();
+// initialize
+pagesEl.scrollLeft = 0;
+setTimeout(updateButtons, 200);
+window.addEventListener("resize", () => setTimeout(updateButtons, 200));
 
   // Step 3: page read (fires once after 60s)
   setTimeout(() => trackLearnAction("read","page_open"), 60000);
