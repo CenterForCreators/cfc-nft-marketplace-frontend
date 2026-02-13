@@ -10,6 +10,23 @@
   .topbar{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;padding:10px 14px;z-index:10}
   .muted{color:#666;font-size:14px}
   .wrap{max-width:980px;margin:0 auto;padding:16px}
+  .reader-bar{display:flex;gap:10px;justify-content:flex-end;margin:10px 0}
+.reader-bar button{padding:8px 12px;border-radius:10px;border:1px solid #ddd;background:#fff;cursor:pointer;font-weight:700}
+
+#reader{
+  height: calc(100vh - 140px);
+  overflow: hidden;
+  background:#fff;
+  border:1px solid #eee;
+  border-radius:12px;
+  padding:20px;
+
+  /* ✅ “Kindle-style” pagination using columns */
+  column-width: 520px;
+  column-gap: 60px;
+}
+#reader *{break-inside: avoid}
+
   .cfc-learn-box{max-width:980px;margin:22px auto;padding:14px 16px;border:1px solid #ddd;border-radius:12px}
   .cfc-learn-title{font-weight:700;margin:0 0 10px 0}
   .cfc-learn-item{margin:10px 0;padding:10px 12px;border:1px solid #eee;border-radius:10px;background:#fafafa}
@@ -23,7 +40,14 @@
   <div class="muted" id="status">Loading…</div>
 </div>
 
-<div class="wrap" id="content"></div>
+<div class="wrap">
+  <div class="reader-bar">
+    <button id="prevBtn" type="button">◀ Prev</button>
+    <button id="nextBtn" type="button">Next ▶</button>
+  </div>
+  <div id="reader"></div>
+</div>
+
 
 <script>
 const CREATOR_BACKEND = "https://cfc-nft-creator-backend.onrender.com";
@@ -123,8 +147,7 @@ function buildLearnBox(chNum, items){
 
 (async function init(){
   const status = document.getElementById("status");
-  const content = document.getElementById("content");
-
+  const reader = document.getElementById("reader");
   if (!metadataCid){
     status.textContent = "Missing metadata.";
     return;
@@ -185,7 +208,7 @@ if (!cidOrUri) {
   }
 
   // Render the HTML (simple + safe for your use-case)
-  content.innerHTML = htmlText;
+ reader.innerHTML = htmlText;
 
   // Step 3: page read (fires once after 60s)
   setTimeout(() => trackLearnAction("read","page_open"), 60000);
@@ -227,6 +250,15 @@ if (!cidOrUri) {
       }
     });
   }
+// ✅ Page-turn buttons (horizontal “Kindle” paging)
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+function pageWidth(){
+  return reader.clientWidth;
+}
+if (nextBtn) nextBtn.onclick = () => reader.scrollLeft += pageWidth();
+if (prevBtn) prevBtn.onclick = () => reader.scrollLeft -= pageWidth();
 
   status.textContent = "Loaded.";
 })();
