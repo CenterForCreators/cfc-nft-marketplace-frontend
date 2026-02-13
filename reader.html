@@ -193,7 +193,8 @@ if (!cidOrUri) {
     return;
   }
 }
-
+const cidOrUri = meta.content_html || meta.html_cid || meta.html || meta.book_html || meta.content;
+  
   const htmlCid = String(cidOrUri).replace("ipfs://","").replace("ipfs/","");
   const htmlUrl = "https://gateway.pinata.cloud/ipfs/" + htmlCid;
 
