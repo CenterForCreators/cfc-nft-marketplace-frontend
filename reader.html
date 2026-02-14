@@ -199,6 +199,13 @@ if (!cidOrUri) {
   return;
 }
 
+const cidOrUri = meta.content_html;
+
+if (!cidOrUri) {
+  status.textContent = "Content not found in metadata.";
+  return;
+}
+
 const htmlCid = String(cidOrUri)
   .replace("ipfs://","")
   .replace("ipfs/","");
