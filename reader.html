@@ -163,42 +163,17 @@ function buildLearnBox(chNum, items){
     return;
   }
 
-const epubUri = meta.content_epub;
-
-// ✅ Fallback: if metadata does NOT contain content_html, load via creator backend using submission_id
-if (!cidOrUri) {
-  try {
-    if (!submissionId) {
-      status.textContent = "Content not found in metadata.";
-      return;
-    }
-
-    status.textContent = "Loading content…";
-
-    const r2 = await fetch(`${CREATOR_BACKEND}/api/content-html/by-submission/${encodeURIComponent(submissionId)}`);
-    if (!r2.ok) {
-      status.textContent = "Content not found in metadata.";
-      return;
-    }
-
-    const htmlText2 = await r2.text();
-    content.innerHTML = htmlText2;
-
-    // Learn-to-earn hooks stay the same:
-    setTimeout(() => trackLearnAction("read","page_open"), 60000);
-
-    return; // ✅ stop here (we already rendered)
-  } catch (e) {
-    status.textContent = "Content not found in metadata.";
-    return;
-  }
-}
 const cidOrUri = meta.content_html;
 if (!cidOrUri) {
   status.textContent = "Content not found in metadata.";
   return;
 }
 
+const htmlCid = String(cidOrUri)
+  .replace("ipfs://","")
+  .replace("ipfs/","");
+
+const htmlUrl = "https://gateway.pinata.cloud/ipfs/" + htmlCid;
 const cidOrUri = meta.content_html;
 
 if (!cidOrUri) {
@@ -212,15 +187,9 @@ const htmlCid = String(cidOrUri)
 
 const htmlUrl = "https://gateway.pinata.cloud/ipfs/" + htmlCid;
 
-const book = ePub(epubUri);
-const rendition = book.renderTo("reader", {
-  width: "100%",
-  height: "80vh",
-  flow: "paginated"
-});
-
-rendition.display();
-
+// Load HTML and render
+const htmlText = await (await fetch(htmlUrl)).text();
+reader.innerHTML = htmlText;
 
   // Step 3: page read (fires once after 60s)
   setTimeout(() => trackLearnAction("read","page_open"), 60000);
