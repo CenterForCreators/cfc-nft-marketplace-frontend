@@ -15,6 +15,45 @@
   .cfc-learn-item{margin:10px 0;padding:10px 12px;border:1px solid #eee;border-radius:10px;background:#fafafa}
   .cfc-learn-btn{margin-top:8px;padding:8px 10px;border:0;border-radius:10px;background:#111;color:#fff;cursor:pointer;font-weight:700}
   .cfc-learn-done{display:inline-block;margin-left:10px;color:#1a7f37;font-weight:700}
+
+  /* ===== Kindle-style pagination (HTML) ===== */
+.pagerbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:10px 0;
+}
+.pgbtn{
+  padding:8px 12px;border:1px solid #ddd;border-radius:10px;
+  background:#fff;cursor:pointer;font-weight:700;
+}
+#pageViewport{
+  height: calc(100vh - 120px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+}
+
+/* This is the “pages” effect: content flows into columns */
+#content{
+  height: 100%;
+  column-width: 720px;      /* page width */
+  column-gap: 60px;         /* space between pages */
+  column-fill: auto;
+  padding: 24px;
+}
+
+/* avoid ugly splits for common blocks */
+#content p, #content h1, #content h2, #content h3, #content img, #content .cfc-learn-box{
+  break-inside: avoid;
+}
+
+/* snap each “page” */
+#content{
+  scroll-snap-align: start;
+}
+
 </style>
 </head>
 <body>
@@ -23,7 +62,18 @@
   <div class="muted" id="status">Loading…</div>
 </div>
 
-<div class="wrap" id="content"></div>
+<div class="wrap">
+  <div class="pagerbar">
+    <button id="prevBtn" class="pgbtn">Prev</button>
+    <div class="muted" id="pageInfo">Page 1</div>
+    <button id="nextBtn" class="pgbtn">Next</button>
+  </div>
+
+  <div id="pageViewport">
+    <div id="content"></div>
+  </div>
+</div>
+
 
 <script>
 const CREATOR_BACKEND = "https://cfc-nft-creator-backend.onrender.com";
@@ -120,6 +170,41 @@ function buildLearnBox(chNum, items){
 
   return box;
 }
+let viewportEl, pageInfoEl;
+
+function setupPager(){
+  viewportEl = document.getElementById("pageViewport");
+  pageInfoEl = document.getElementById("pageInfo");
+
+  const prev = document.getElementById("prevBtn");
+  const next = document.getElementById("nextBtn");
+
+  function updatePageInfo(){
+    if (!viewportEl || !pageInfoEl) return;
+    const w = viewportEl.clientWidth || 1;
+    const page = Math.round(viewportEl.scrollLeft / w) + 1;
+    pageInfoEl.textContent = `Page ${page}`;
+  }
+
+  function go(delta){
+    if (!viewportEl) return;
+    const w = viewportEl.clientWidth || 1;
+    viewportEl.scrollTo({ left: viewportEl.scrollLeft + delta * w, behavior: "smooth" });
+    setTimeout(updatePageInfo, 150);
+  }
+
+  prev.addEventListener("click", () => go(-1));
+  next.addEventListener("click", () => go(1));
+  viewportEl.addEventListener("scroll", () => updatePageInfo());
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") go(-1);
+    if (e.key === "ArrowRight") go(1);
+  });
+
+  // initial
+  setTimeout(updatePageInfo, 100);
+}
 
 (async function init(){
   const status = document.getElementById("status");
@@ -161,6 +246,7 @@ if (!cidOrUri) {
 
     const htmlText2 = await r2.text();
     content.innerHTML = htmlText2;
+setupPager();
 
     // Learn-to-earn hooks stay the same:
     setTimeout(() => trackLearnAction("read","page_open"), 60000);
@@ -186,6 +272,7 @@ if (!cidOrUri) {
 
   // Render the HTML (simple + safe for your use-case)
   content.innerHTML = htmlText;
+  setupPager();
 
   // Step 3: page read (fires once after 60s)
   setTimeout(() => trackLearnAction("read","page_open"), 60000);
