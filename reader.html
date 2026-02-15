@@ -164,14 +164,14 @@ function buildLearnBox(chNum, items){
   }
 
 const cidOrUri = meta.content_html;
+
 if (!cidOrUri) {
   status.textContent = "Content not found in metadata.";
   return;
 }
 
-const htmlCid = String(cidOrUri)
-  .replace("ipfs://","")
-  .replace("ipfs/","");
+content.innerHTML = cidOrUri;
+status.textContent = "Loaded.";
 
 const htmlUrl = "https://gateway.pinata.cloud/ipfs/" + htmlCid;
 
