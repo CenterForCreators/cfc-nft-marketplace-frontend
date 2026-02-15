@@ -10,23 +10,6 @@
   .topbar{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;padding:10px 14px;z-index:10}
   .muted{color:#666;font-size:14px}
   .wrap{max-width:980px;margin:0 auto;padding:16px}
-  .reader-bar{display:flex;gap:10px;justify-content:flex-end;margin:10px 0}
-.reader-bar button{padding:8px 12px;border-radius:10px;border:1px solid #ddd;background:#fff;cursor:pointer;font-weight:700}
-
-#reader{
-  height: calc(100vh - 140px);
-  overflow: hidden;
-  background:#fff;
-  border:1px solid #eee;
-  border-radius:12px;
-  padding:20px;
-
-  /* ✅ “Kindle-style” pagination using columns */
-  column-width: 520px;
-  column-gap: 60px;
-}
-#reader *{break-inside: avoid}
-
   .cfc-learn-box{max-width:980px;margin:22px auto;padding:14px 16px;border:1px solid #ddd;border-radius:12px}
   .cfc-learn-title{font-weight:700;margin:0 0 10px 0}
   .cfc-learn-item{margin:10px 0;padding:10px 12px;border:1px solid #eee;border-radius:10px;background:#fafafa}
@@ -40,14 +23,7 @@
   <div class="muted" id="status">Loading…</div>
 </div>
 
-<div class="wrap">
-  <div class="reader-bar">
-    <button id="prevBtn" type="button">◀ Prev</button>
-    <button id="nextBtn" type="button">Next ▶</button>
-  </div>
-  <div id="reader"></div>
-</div>
-
+<div class="wrap" id="content"></div>
 
 <script>
 const CREATOR_BACKEND = "https://cfc-nft-creator-backend.onrender.com";
@@ -147,7 +123,8 @@ function buildLearnBox(chNum, items){
 
 (async function init(){
   const status = document.getElementById("status");
-  const reader = document.getElementById("reader");
+  const content = document.getElementById("content");
+
   if (!metadataCid){
     status.textContent = "Missing metadata.";
     return;
@@ -163,21 +140,52 @@ function buildLearnBox(chNum, items){
     return;
   }
 
-const cidOrUri = meta.content_html;
 
+const cidOrUri = meta.content_html || meta.html_cid || meta.html || meta.book_html || meta.content;
+
+// ✅ Fallback: if metadata does NOT contain content_html, load via creator backend using submission_id
 if (!cidOrUri) {
-  status.textContent = "Content not found in metadata.";
-  return;
+  try {
+    if (!submissionId) {
+      status.textContent = "Content not found in metadata.";
+      return;
+    }
+
+    status.textContent = "Loading content…";
+
+    const r2 = await fetch(`${CREATOR_BACKEND}/api/content-html/by-submission/${encodeURIComponent(submissionId)}`);
+    if (!r2.ok) {
+      status.textContent = "Content not found in metadata.";
+      return;
+    }
+
+    const htmlText2 = await r2.text();
+    content.innerHTML = htmlText2;
+
+    // Learn-to-earn hooks stay the same:
+    setTimeout(() => trackLearnAction("read","page_open"), 60000);
+
+    return; // ✅ stop here (we already rendered)
+  } catch (e) {
+    status.textContent = "Content not found in metadata.";
+    return;
+  }
 }
 
-content.innerHTML = cidOrUri;
-status.textContent = "Loaded.";
+  const htmlCid = String(cidOrUri).replace("ipfs://","").replace("ipfs/","");
+  const htmlUrl = "https://gateway.pinata.cloud/ipfs/" + htmlCid;
 
-const htmlUrl = "https://gateway.pinata.cloud/ipfs/" + htmlCid;
+  // Load the creator HTML as text, then render inside this page
+  let htmlText = "";
+  try{
+    htmlText = await (await fetch(htmlUrl)).text();
+  }catch(e){
+    status.textContent = "Failed to load content HTML.";
+    return;
+  }
 
-// Load HTML and render
-const htmlText = await (await fetch(htmlUrl)).text();
-reader.innerHTML = htmlText;
+  // Render the HTML (simple + safe for your use-case)
+  content.innerHTML = htmlText;
 
   // Step 3: page read (fires once after 60s)
   setTimeout(() => trackLearnAction("read","page_open"), 60000);
@@ -219,15 +227,6 @@ reader.innerHTML = htmlText;
       }
     });
   }
-// ✅ Page-turn buttons (horizontal “Kindle” paging)
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
-
-function pageWidth(){
-  return reader.clientWidth;
-}
-if (nextBtn) nextBtn.onclick = () => reader.scrollLeft += pageWidth();
-if (prevBtn) prevBtn.onclick = () => reader.scrollLeft -= pageWidth();
 
   status.textContent = "Loaded.";
 })();
