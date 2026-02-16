@@ -1997,19 +1997,22 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
     // Silent failure — no UI impact
   }
 }
- async function claimCfcReward(submissionId) {
-  const wallet = window.userWallet; // already used elsewhere
+async function claimCfcReward(submissionId) {
+  const wallet = window.connectedAccount;
   const returnUrl = window.location.href;
 
- fetch("https://cfc-nft-shared-mint-backend.onrender.com/api/claim-nft-reward", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-   body: JSON.stringify({
-  submission_id: submissionId,
-  wallet: window.connectedAccount,
-  return_url: window.location.href
-})
-  });
+  const r = await fetch(
+    "https://cfc-nft-shared-mint-backend.onrender.com/api/claim-nft-reward",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        wallet,
+        submission_id: submissionId,
+        return_to: returnUrl
+      })
+    }
+  );
 
   const j = await r.json();
   if (!j.ok) {
@@ -2017,6 +2020,7 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
     return;
   }
 
+  // Redirect to Xaman
   window.location.href = j.link;
 }
  
