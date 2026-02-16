@@ -1978,6 +1978,29 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
     // Silent failure — no UI impact
   }
 }
+ async function claimCfcReward(submissionId) {
+  const wallet = window.userWallet; // already used elsewhere
+  const returnUrl = window.location.href;
+
+  const r = await fetch("/api/claim-nft-reward", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      wallet,
+      submission_id: submissionId,
+      return_url: returnUrl
+    })
+  });
+
+  const j = await r.json();
+  if (!j.ok) {
+    alert(j.error || "Claim failed");
+    return;
+  }
+
+  window.location.href = j.link;
+}
+ 
 </script>
 
 <script>
@@ -2345,6 +2368,11 @@ if (!window.connectedAccount) {
         <img class="nft-img" src="https://gateway.pinata.cloud/ipfs/${o.image_cid}">
         <h3>${o.name}</h3>
         <div class="muted">Status: ${o.status}</div>
+        <button
+  onclick="claimCfcReward('{{submission_id}}')"
+  class="btn btn-primary">
+  Claim CFC Rewards
+</button>
         <button class="btn small" onclick="startRedeem(${o.id})">Redeem</button>
       ${o.content_cid ? `
 <button class="btn small secondary"
