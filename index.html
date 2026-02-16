@@ -1982,7 +1982,7 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
   const wallet = window.userWallet; // already used elsewhere
   const returnUrl = window.location.href;
 
-  const r = await fetch("/api/claim-nft-reward", {
+ fetch("https://cfc-nft-shared-mint-backend.onrender.com/api/claim-nft-reward", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
