@@ -4,6 +4,23 @@
 
 <!DOCTYPE html>
 <html>
+ .action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.btn.claim {
+  background: #f5c400; /* marketplace yellow */
+  color: #000;
+}
+
+.btn.open {
+  background: #6b4eff; /* marketplace purple */
+  color: #fff;
+}
+ 
 <head>
   <!-- Xumm & XRPL SDKs -->
   <script src="https://xumm.app/assets/cdn/xumm.min.js"></script>
@@ -1985,11 +2002,11 @@ async function trackLearnAction(submissionId, actionType, actionRef) {
  fetch("https://cfc-nft-shared-mint-backend.onrender.com/api/claim-nft-reward", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      wallet,
-      submission_id: submissionId,
-      return_url: returnUrl
-    })
+   body: JSON.stringify({
+  submission_id: submissionId,
+  wallet: window.connectedAccount,
+  return_url: window.location.href
+})
   });
 
   const j = await r.json();
@@ -2368,19 +2385,25 @@ if (!window.connectedAccount) {
         <img class="nft-img" src="https://gateway.pinata.cloud/ipfs/${o.image_cid}">
         <h3>${o.name}</h3>
         <div class="muted">Status: ${o.status}</div>
-        <button
-  onclick="claimCfcReward('{{submission_id}}')"
-  class="btn btn-primary">
-  Claim CFC Rewards
-</button>
-        <button class="btn small" onclick="startRedeem(${o.id})">Redeem</button>
-      ${o.content_cid ? `
-<button class="btn small secondary"
-  onclick="openReader('${o.metadata_cid}', ${o.submission_id})">
-  Open Content
-</button>
-` : ``}
- 
+
+      <div class="action-buttons">
+  <button class="btn claim"
+    onclick="claimCfcReward(ITEM.submission_id)">
+    Claim CFC Rewards
+  </button>
+
+  <button class="btn small"
+    onclick="startRedeem(${o.id})">
+    Redeem
+  </button>
+
+  ${o.content_cid ? `
+  <button class="btn small open"
+    onclick="openReader('${o.metadata_cid}', ${o.submission_id})">
+    Open Content
+  </button>
+  ` : ""}
+
       </div>
     `).join('')
 
