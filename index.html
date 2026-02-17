@@ -1458,7 +1458,7 @@ if (!window.connectedAccount) {
       if (data.ok) {
         if (s) s.textContent = 'Success! Faucet sent.';
         if (typeof fetchBalances === 'function') await fetchBalances(connectedAccount);
-      } else {
+     if (s) { s.textContent = data.error || 'Faucet failed.'; setTimeout(()=>{ s.textContent=''; },5000); }
         if (s) s.textContent = data.error || 'Faucet failed.';
       }
     } catch (e) {
