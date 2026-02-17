@@ -583,7 +583,7 @@ async function connect(){
     const data = await r.json().catch(()=>({}));
     var m=document.getElementById('claimMsg');
     if (r.ok) m && (m.textContent='✅ 25 CFC sent! Check your wallet soon.');
-    else m && (m.textContent=(data?.error || 'Claim failed.'));
+  else m && (m.textContent=(data?.error || 'Claim failed.'), setTimeout(()=>{m.textContent='';},5000));
   }catch(e){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Network error.'; }
   if(spinner) spinner.style.display='none';
   window.__cfcCaptchaPassed=false;
