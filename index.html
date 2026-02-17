@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -583,7 +584,7 @@ async function connect(){
     const data = await r.json().catch(()=>({}));
     var m=document.getElementById('claimMsg');
     if (r.ok) m && (m.textContent='✅ 25 CFC sent! Check your wallet soon.');
-  else m && (m.textContent=(data?.error || 'Claim failed.'), setTimeout(()=>{m.textContent='';},5000));
+    else m && (m.textContent=(data?.error || 'Claim failed.'));
   }catch(e){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Network error.'; }
   if(spinner) spinner.style.display='none';
   window.__cfcCaptchaPassed=false;
@@ -1458,7 +1459,7 @@ if (!window.connectedAccount) {
       if (data.ok) {
         if (s) s.textContent = 'Success! Faucet sent.';
         if (typeof fetchBalances === 'function') await fetchBalances(connectedAccount);
-     if (s) { s.textContent = data.error || 'Faucet failed.'; setTimeout(()=>{ s.textContent=''; },5000); }
+      } else {
         if (s) s.textContent = data.error || 'Faucet failed.';
       }
     } catch (e) {
