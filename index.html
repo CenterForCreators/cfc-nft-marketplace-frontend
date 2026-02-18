@@ -2393,7 +2393,7 @@ if (!window.connectedAccount) {
 
     grid.innerHTML = orders.map(o => `
       <div class="card">
-        <img class="nft-img" src="https://ipfs.io/ipfs/${o.image_cid}">
+       <img class="nft-img" src="https://ipfs.io/ipfs/${o.image_cid}?v=${Date.now()}">
         <h3>${o.name}</h3>
         <div class="muted">Status: ${o.status}</div>
 
