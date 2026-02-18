@@ -2536,6 +2536,46 @@ window.getActiveWallet = function () {
     }
   }
 </script>
+<script>
+(function(){
+  const btn = document.getElementById('connectBtn');
+  if (!btn) return;
+
+  // Remove ALL existing click handlers
+  const cleanBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(cleanBtn, btn);
+
+  cleanBtn.addEventListener('click', async function(e){
+    e.preventDefault();
+    try{
+      if (!window.xumm) { alert('Xaman not ready'); return; }
+
+      const sub = await window.xumm.payload.createAndSubscribe({
+        txjson: { TransactionType: 'SignIn' },
+        options: {
+          return_url: {
+            web: 'https://centerforcreators.com/nft-marketplace',
+            app: 'https://centerforcreators.com/nft-marketplace'
+          }
+        }
+      }, function(){});
+
+      if (sub?.created?.next?.always) {
+        window.location.href = sub.created.next.always;
+      }
+
+      const res = await sub.resolved;
+      if (res?.signed && res?.response?.account) {
+        sessionStorage.setItem('connectedAccount', res.response.account);
+      }
+
+    } catch(err){
+      console.error(err);
+    }
+  });
+
+})();
+</script>
 
 </body>
 </html>
