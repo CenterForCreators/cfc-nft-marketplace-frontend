@@ -2131,6 +2131,18 @@ function openRedeemedContent(submissionId, metadataCid) {
     btn.textContent = expanded ? "See less" : "Read more";
     sendHeight();
   }
+function cfc_imgFallback(el, cid){
+  const tries = [
+    `https://ipfs.io/ipfs/${cid}`,
+    `https://dweb.link/ipfs/${cid}`
+  ];
+
+  const i = Number(el.getAttribute("data-fb") || "0");
+  if (i >= tries.length) return;
+
+  el.setAttribute("data-fb", String(i + 1));
+  el.src = tries[i];
+}
 
   function cfc_renderNFT(it){
     const img = `https://gateway.pinata.cloud/ipfs/${it.image_cid}`;
@@ -2138,7 +2150,7 @@ function openRedeemedContent(submissionId, metadataCid) {
 
     return `
       <div class="card live-nft-card" data-rlusd="${it.price_rlusd}">
-       <img class="nft-img" src="${img}" alt="${it.name}" loading="lazy" decoding="async">
+      <img class="nft-img" src="${img}" alt="${it.name}" loading="lazy" decoding="async" onerror="cfc_imgFallback(this,'${it.image_cid}')">
 
         <h3 style="margin:12px 0 4px;">${it.name}</h3>
 
