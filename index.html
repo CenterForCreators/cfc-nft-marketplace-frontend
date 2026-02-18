@@ -206,9 +206,9 @@
 <header>
 <div class="brand">
 </div>
- <button class="btn" id="connectBtn" onclick="try{ if(window.connect){connect()} }catch(e){}"><span id="addrBadge" style="margin-left:8px;opacity:0.9"></span>Connect Xaman Wallet</button>
-<div id="emailInput" ...>
-   
+
+  <button class="btn" id="connectBtn" onclick="try{ if(window.connect){connect()} }catch(e){}"><span id="addrBadge" style="margin-left:8px;opacity:0.9"></span>Connect Xaman Wallet</button><div id="emailInput" ...>
+ 
 </header>
 <!-- Injected: row (account + balances) -->
 <style>
@@ -443,7 +443,7 @@ document.getElementById('emailSubmit').addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
 
   const connectBtn = document.getElementById('connectBtn')
-  if (connectBtn) connectBtn.addEventListener('click', connectXaman)
+ if (connectBtn) connectBtn.addEventListener('click', connect)
 
   const buy1rlusd = document.getElementById('buy1rlusd')
   if (buy1rlusd) buy1rlusd.addEventListener('click', () => buyWithRLUSD(CONFIG.ITEMS[0]))
@@ -678,7 +678,7 @@ function checkCaptcha(){
     var el=document.getElementById(id);
     if (el && !el.onclick) el.onclick = fn;
   }
-  tryBind('connectBtn', _connect);
+ tryBind('connectBtn', connect);
   tryBind('claimBtn', _claim);
 
   // Fallback: bind by button text if IDs differ
