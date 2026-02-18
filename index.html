@@ -573,7 +573,16 @@ async function connect(){
 }
 
 
-    const signin = await xumm.payload.createAndSubscribe({ txjson: { TransactionType: 'SignIn' } }, () => {});
+   const signin = await xumm.payload.createAndSubscribe({
+  txjson: { TransactionType: 'SignIn' },
+  options: {
+    return_url: {
+      web: 'https://centerforcreators.com/nft-marketplace',
+      app: 'https://centerforcreators.com/nft-marketplace'
+    }
+  }
+}, () => {});
+
     if (signin?.created?.next) window.open(signin.created.next.always, '_blank');
     const res = await signin.resolved;
     if (!res?.signed || !res?.response?.account){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Claim cancelled.'; if(spinner) spinner.style.display='none'; return; }
