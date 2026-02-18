@@ -583,7 +583,7 @@ async function connect(){
   }
 }, () => {});
 
-    if (signin?.created?.next) window.open(signin.created.next.always, '_blank');
+    if (signin?.created?.next) window.location.href = signin.created.next.always;
     const res = await signin.resolved;
     if (!res?.signed || !res?.response?.account){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Claim cancelled.'; if(spinner) spinner.style.display='none'; return; }
     if (res.response.account !== window.connectedAccount){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Use the same wallet you connected.'; if(spinner) spinner.style.display='none'; return; }
@@ -1035,14 +1035,26 @@ if (!window.connectedAccount) {
     try{
       if(!window.Xumm){ console.warn('Xumm SDK not loaded'); return; }
       var x = new Xumm(CFG.XUMM_APP_UUID);
-      x.signIn().then(function(s){
-        if (s && s.me && s.me.account){
-          connectedAccount = s.me.account;
-          var cs = byId('connStatus'); if(cs) cs.textContent='Connected';
-          var ac = byId('acct'); if(ac) ac.textContent=connectedAccount;
-          refreshBalances();
-        }
-      });
+     x.payload.createAndSubscribe({
+  txjson: { TransactionType: 'SignIn' },
+  options: {
+    return_url: {
+      web: 'https://centerforcreators.com/nft-marketplace',
+      app: 'https://centerforcreators.com/nft-marketplace'
+    }
+  }
+}, function(){})
+.then(async function(sub){
+  if (sub?.created?.next) window.location.href = sub.created.next.always;
+  const res = await sub.resolved;
+  if (res?.signed && res?.response?.account){
+    connectedAccount = res.response.account;
+    var cs = byId('connStatus'); if(cs) cs.textContent='Connected';
+    var ac = byId('acct'); if(ac) ac.textContent=connectedAccount;
+    refreshBalances();
+  }
+});
+
     }catch(e){ console.error(e); }
   }
   var btn = document.getElementById('connectBtn');
