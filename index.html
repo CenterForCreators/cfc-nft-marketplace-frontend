@@ -2145,7 +2145,7 @@ function cfc_imgFallback(el, cid){
 }
 
   function cfc_renderNFT(it){
-    const img = `https://gateway.pinata.cloud/ipfs/${it.image_cid}`;
+   const img = `/api/ipfs/${it.image_cid}`;
     const xrp = cfc_calcXrp(Number(it.price_rlusd || 0));
 
     return `
