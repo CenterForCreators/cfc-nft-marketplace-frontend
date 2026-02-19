@@ -115,10 +115,11 @@
    /* Base NFT image styling (shared) */
 .card .nft-img {
   width: 100%;
-  height: 260px; /* ORIGINAL marketplace NFT size */
+  height: 260px;
   object-fit: cover;
   border-radius: 12px;
   display: block;
+  min-height: 200px;
 }
   
     input[type="email"], input[type="text"]{width:100%;outline:none;padding:10px;border-radius:10px;border:1px solid #2a3a60;background:#0e1527;color:#e8f0ff}
@@ -2182,8 +2183,8 @@ function cfc_imgFallback(el, cid){
 
     return `
       <div class="card live-nft-card" data-rlusd="${it.price_rlusd}">
-      <img class="nft-img" src="${img}" alt="${it.name}" loading="lazy" decoding="async" onerror="cfc_imgFallback(this,'${it.image_cid}')">
-
+     
+<img class="nft-img" src="${img}" alt="${it.name}" loading="eager" decoding="sync" onerror="cfc_imgFallback(this,'${it.image_cid}')" style="min-height:200px;">
         <h3 style="margin:12px 0 4px;">${it.name}</h3>
 
         <div id="desc-${it.id}" class="muted cfc-clamp">
