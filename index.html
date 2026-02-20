@@ -444,7 +444,6 @@ document.getElementById('emailSubmit').addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
 
   const connectBtn = document.getElementById('connectBtn')
- if (connectBtn) connectBtn.addEventListener('click', connect)
 
   const buy1rlusd = document.getElementById('buy1rlusd')
   if (buy1rlusd) buy1rlusd.addEventListener('click', () => buyWithRLUSD(CONFIG.ITEMS[0]))
@@ -682,33 +681,11 @@ function checkCaptcha(){
  tryBind('connectBtn', connect);
   tryBind('claimBtn', _claim);
 
-  // Fallback: bind by button text if IDs differ
-  function bindByText(txt, fn){
-    var btns=[...document.querySelectorAll('button')];
-    btns.forEach(b=>{
-      var t=(b.textContent||'').toLowerCase();
-      if (t.includes(txt) && !b.onclick){ b.onclick = fn; }
     });
   }
   bindByText('connect xaman', _connect);
   bindByText('connect wallet', _connect);
   bindByText('claim', _claim);
-})();
-</script>
-<script>
-(function(){
-  function alias(from, to){
-    try{
-      if (typeof window[from]==='function' && typeof window[to] !== 'function'){ window[to]=window[from]; }
-      else if (typeof window[to]==='function' && typeof window[from] !== 'function'){ window[from]=window[to]; }
-    }catch(e){}
-  }
-  document.addEventListener('DOMContentLoaded', function(){
-    alias('onConnect','connectWallet');
-    alias('onClaim','handleClaim');
-    var cb=document.getElementById('connectBtn'); if(cb && !cb.onclick) cb.onclick = (window.connectWallet||window.onConnect);
-    var cl=document.getElementById('claimBtn');   if(cl && !cl.onclick) cl.onclick   = (window.handleClaim||window.onClaim);
-  });
 })();
 </script>
 <script>
@@ -906,7 +883,7 @@ if (!window.connectedAccount) {
   const connectBtn = gid('connectBtn');
   if(connectBtn && !connectBtn.__wired){
     connectBtn.__wired = true;
-    connectBtn.addEventListener('click', doConnect);
+   
   }
   if(account){
     showBar(); setStatus('Connected'); setAccount(account);
@@ -1041,31 +1018,7 @@ if (!window.connectedAccount) {
 
   function byId(id){ return document.getElementById(id); }
 
-  // Connect handler
-  var connectedAccount = null;
-  function connectXaman(){
-    try{
-      if(!window.Xumm){ console.warn('Xumm SDK not loaded'); return; }
-      var x = new Xumm(CFG.XUMM_APP_UUID);
-     x.payload.createAndSubscribe({
-  txjson: { TransactionType: 'SignIn' },
-  options: {
-    return_url: {
-      web: 'https://centerforcreators.com/nft-marketplace',
-      app: 'https://centerforcreators.com/nft-marketplace'
-    }
-  }
-}, function(){})
-.then(async function(sub){
-  if (sub?.created?.next) window.location.href = sub.created.next.always;
-  const res = await sub.resolved;
-  if (res?.signed && res?.response?.account){
-    connectedAccount = res.response.account;
-    var cs = byId('connStatus'); if(cs) cs.textContent='Connected';
-    var ac = byId('acct'); if(ac) ac.textContent=connectedAccount;
-    refreshBalances();
-  }
-});
+
 
     }catch(e){ console.error(e); }
   }
