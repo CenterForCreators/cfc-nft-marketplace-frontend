@@ -737,49 +737,42 @@ window.account = account;
     }catch(e){ console.warn(e); }
   }
 
- const connectBtn = gid('connectBtn');
+const connectBtn = gid('connectBtn');
+  if(connectBtn && !connectBtn.__wired){
+    connectBtn.__wired = true;
 
-if(connectBtn && !connectBtn.__wired){
-  connectBtn.__wired = true;
-
-  connectBtn.addEventListener('click', async function(){
-
-    try{
-      if(!window.xumm || typeof window.xumm.authorize !== 'function'){
-        console.warn('Xaman SDK not ready');
-        return;
-      }
-
-      const res = await window.xumm.authorize();
-      const acct = res?.me?.account || res?.account;
-
-      if(!acct){
-        console.warn('Connection cancelled');
-        return;
-      }
-
-      account = acct;
+    connectBtn.addEventListener('click', async function(e){
+      e.preventDefault();
 
       try{
-        localStorage.setItem('xrpl_account', acct);
-      }catch(e){}
+        if(!window.xumm || typeof window.xumm.authorize !== 'function'){
+          alert('Xaman SDK not ready');
+          return;
+        }
 
-      showBar();
-      setStatus('Connected');
-      setAccount(acct);
+        const res = await window.xumm.authorize();
+        const acct = (res && res.me && res.me.account) ? res.me.account : (res && res.account ? res.account : '');
 
-      connectBtn.textContent = 'Connected';
-      connectXRPLAndLoadBalances(acct);
+        if(!acct){
+          alert('Connection cancelled.');
+          return;
+        }
 
-      console.log('Connected wallet:', acct);
+        account = acct;
+        try{ localStorage.setItem('xrpl_account', account); }catch(_){}
+        try{ localStorage.setItem('xummAccount', account); }catch(_){}
+        window.connectedAccount = account;
 
-    }catch(e){
-      console.error('Xaman connection failed', e);
-    }
+        showBar(); setStatus('Connected'); setAccount(account);
+        if(connectBtn){ connectBtn.textContent = 'Connected'; connectBtn.disabled = false; }
+        connectXRPLAndLoadBalances(account);
 
-  });
-}
-
+      }catch(err){
+        console.error(err);
+        alert('Connection failed.');
+      }
+    });
+  }
   connectBtn.addEventListener('click', async function(e){
     e.preventDefault();
     try{
@@ -1044,86 +1037,7 @@ account = acct;
   }
 })();
 </script>
-<!-- CFC-AUTO-SCRIPT -->
-<script>
-(function(){
-  const connectBtn = document.getElementById('connectBtn');
-  const addrBadge  = document.getElementById('addrBadge');
-  const xrpBalEl   = document.getElementById('xrpBal');
-  const cfcBalEl   = document.getElementById('cfcBal');
-  const claimBtn   = document.getElementById('claimBtn');
-  const CONFIG     = window.CONFIG || {};
-  let connectedAccount = null;
 
-  function isValidR(r){ return typeof r === 'string' && /^r[1-9A-HJ-NP-Za-km-z]{25,}$/i.test(r); }
-  function setConnected(addr){
-    if(!isValidR(addr)) return;
-    connectedAccount = addr;
-   try { localStorage.setItem("xrpl_account", addr); } catch(e){}
-    if(connectBtn){ connectBtn.textContent = "Connected"; connectBtn.disabled = false; }
-    if(addrBadge){ addrBadge.textContent = addr; }
-    fetchBalances(addr);
-  }
-
-  async function fetchBalances(address){
-    try{
-      if(!window.xrpl) return;
-      const client = new xrpl.Client("wss://s1.ripple.com");
-      await client.connect();
-      const info = await client.request({ command:"account_info", account: address, ledger_index:"validated" });
-      const xrp = (parseInt(info.result.account_data.Balance||"0",10)/1e6).toFixed(6);
-      if(xrpBalEl) xrpBalEl.textContent = xrp;
-      const code = (CONFIG.currencyCode || "CFC");
-      const issuer = (CONFIG.issuer || "rsxUkmjnAn8PRDz8RYrPusb9mTDYn5NqG8");
-      const lines = await client.request({ command:"account_lines", account: address, ledger_index:"validated", peer: issuer });
-      const line = (lines.result.lines||[]).find(l => l.currency === code);
-      if(cfcBalEl) cfcBalEl.textContent = line ? line.balance : "0";
-      await client.disconnect();
-    }catch(e){ console.error("balance fetch error", e); }
-  }
-
-  async function connectXumm(){
-    try{
-      if(window.xumm && window.xumm.authorize){
-        const res = await window.xumm.authorize();
-        const addr = res && res.me && res.me.account ? res.me.account : (res && res.account ? res.account : null);
-        if(addr) setConnected(addr);
-      }
-    }catch(e){ console.error("xumm authorize error", e); }
-  }
-
-  if(connectBtn){
-    connectBtn.addEventListener('click', function(){ if(!connectedAccount) connectXumm(); });
-  }
-
-try{
-  const prev = sessionStorage.getItem("cfc_addr")
-    || localStorage.getItem("xrpl_account")
-    || localStorage.getItem("xummAccount");
-  if(isValidR(prev)) setConnected(prev);
-}catch(e){}
-
-  if(window.xumm && window.xumm.on){
-    try{
-      window.xumm.on("ready", () => {
-        try{ if(window.xumm.user && window.xumm.user.account) setConnected(window.xumm.user.account); }catch(e){}
-      });
-      window.xumm.on("success", (e) => {
-        const acc = (e && e.me && e.me.account) ? e.me.account : (e && e.account ? e.account : null);
-        if(acc) setConnected(acc);
-      });
-      window.xumm.on("retrieved", (e) => {
-        const acc = (e && e.me && e.me.account) ? e.me.account : (e && e.account ? e.account : null);
-        if(acc) setConnected(acc);
-      });
-    }catch(e){}
-  }
-
-    });
-  }
-})();
-</script>
-</div></div>
 <script>
 (function() {
   // Configuration
@@ -1489,137 +1403,7 @@ function cleanTexts(){
 }
 </script>
 
-<!-- bootstrap: join + claim + divider (non-destructive) -->
-<script>
-(function(){
-  
-  function create(tag, attrs){
-    var el = document.createElement(tag);
-    if(attrs){ for (var k in attrs){ if(k==='text') el.textContent = attrs[k]; else el.setAttribute(k, attrs[k]); } }
-    return el;
-  }
 
-  // Add .divider CSS if missing
-  function ensureDividerCSS(){
-    if ([].some.call(document.styleSheets, s => {
-      try { return s.ownerNode && s.ownerNode.textContent && s.ownerNode.textContent.includes('.divider{'); } catch(e){ return false; }
-    })) return;
-    var style = create('style');
-    style.textContent = '.divider{height:1px;background:var(--accent);opacity:0.6;margin:10px 0 14px 0;border-radius:999px}';
-    document.head.appendChild(style);
-  }
-
-  // Insert divider under CAPTCHA and above Marketplace/My Purchases/Redeem
-  function ensureFaucetDivider(){
-    var faucet = $('#faucet');
-    if (!faucet) return;
-    if (faucet.querySelector('.divider')) return;
-    var cap = faucet.querySelector('.captcha');
-    if (cap){
-      var div = create('div'); div.className = 'divider';
-      cap.insertAdjacentElement('afterend', div);
-      return;
-    }
-    // fallback: before row containing the 3 buttons
-    var rows = faucet.querySelectorAll('.row');
-    for (var i=0;i<rows.length;i++){
-      var t = rows[i].textContent || '';
-      if (/Marketplace|My Purchases|Redeem/i.test(t)){
-        var div2 = create('div'); div2.className = 'divider';
-        rows[i].insertAdjacentElement('beforebegin', div2);
-        break;
-      }
-    }
-  }
-
-  // Ensure claim spinner/status elements after claimBtn
-  function ensureClaimUI(){
-    var btn = $('#claimBtn');
-    if (!btn) return;
-    var next = btn.nextElementSibling;
-    var hasSpin = !!$('#claimSpin', btn.parentElement || document);
-    var hasStatus = !!$('#claimStatus', btn.parentElement || document) || !!document.getElementById('claimStatus');
-    if (!hasSpin){
-      var spin = create('div', { id:'claimSpin', class:'spinner' });
-      spin.style.display = 'none';
-      btn.insertAdjacentElement('afterend', spin);
-    }
-    if (!hasStatus){
-      var status = create('div', { id:'claimStatus', class:'status' });
-      (btn.parentElement||faucet||document.body).appendChild(status);
-    }
-  }
-
-/* SAFE claim handler: no backend error text is surfaced */
-(function(){
-  var btn = document.getElementById('claimBtn')
-      || document.querySelector('#faucet button.btn');
-  if (!btn) return;
-  if (btn.__wired) return;
-  btn.__wired = true;
-
-  btn.addEventListener('click', async function (ev) {
-    ev.preventDefault();
-    var status = document.getElementById('claimStatus')
-        || document.querySelector('#faucet .status');
-    var spin = document.getElementById('claimSpin');
-
-    if (status){ status.className='status warn'; status.textContent='Sending…'; }
-    if (spin){ spin.style.display='inline-block'; }
-
-    try {
-      const url = (window.CONFIG && (CONFIG.FAUCET_ENDPOINT || CONFIG.faucetEndpoint))
-                  || 'https://cfc-faucet.onrender.com/api/faucet';
-      const r = await fetch(url, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ captcha_ok: true })
-      });
-      const j = await r.json();
-
-      if (status){
-        if (j && j.ok){
-          var amt = (window.CONFIG && (CONFIG.faucetAmount || CONFIG.FAUCET_DAILY_AMOUNT)) || 10;
-          var code = (window.CONFIG && (CONFIG.currencyCode || CONFIG.CFC_CODE)) || 'CFC';
-          status.className='status ok';
-          status.textContent='✅ ' + amt + ' ' + code + ' sent!';
-        } else {
-          status.className='status err';
-          status.textContent='Request failed';
-          setTimeout(()=>{ statusEl.textContent=''; statusEl.className='status'; }, 5000);
-        }
-      }
-    
-</script>
-<script id="cfc-connect-and-bindings">
-(function(){
-  if(window._cfcPatched) return; window._cfcPatched = true;
-  const connectBtn = document.getElementById('connectBtn');
-  const claimBtn = document.getElementById('claimBtn');
-  const ans = document.getElementById('capAns');
-  const addrBadge = document.getElementById('addrBadge') || document.getElementById('address') || document.getElementById('walletAddress');
-
-  if(connectBtn){
-    connectBtn.onclick = null;
-    connectBtn.addEventListener('click', async function(){
-      try{
-        if(window.xumm && window.xumm.authorize){
-          const res = await window.xumm.authorize();
-          const acct = (res && (res.account || (res.me && res.me.account))) ? (res.account || res.me.account) : null;
-          if(acct){
-            window.connectedAccount = acct;
-            if(connectBtn){ connectBtn.textContent = 'Connected'; connectBtn.disabled = false; }
-            if(addrBadge){ addrBadge.textContent = acct; }
-            if(typeof fetchBalances==='function') fetchBalances(acct);
-          }
-        }
-      }catch(e){ console.error('Xaman connect error', e); }
-    });
-  }
-  
-  if(ans){ ans.addEventListener('input', function(){ if(typeof checkCaptcha==='function') checkCaptcha(); }); }
-  if(typeof newCaptcha==='function') newCaptcha();
-})();
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const savedAccount = localStorage.getItem("connectedAccount");
