@@ -560,21 +560,30 @@ document.addEventListener('DOMContentLoaded', function(){
 <script>
 window.CFC = window.CFC||{};
 
-async function connect(){
+ async function connect(){
   try{
-    const res = await xumm.authorize();
+    const signin = await xumm.payload.createAndSubscribe({
+      txjson: { TransactionType: 'SignIn' },
+      options: {
+        return_url: {
+          web: 'https://centerforcreators.com/nft-marketplace',
+          app: 'https://centerforcreators.com/nft-marketplace'
+        }
+      }
+    }, function(){});
 
-    if(res && res.me && res.me.account){
-      window.connectedAccount = res.me.account;
+    if (signin?.created?.next?.always){
+      window.location.href = signin.created.next.always;
+    }
+
+    const res = await signin.resolved;
+
+    if (res?.signed && res?.response?.account){
+      window.connectedAccount = res.response.account;
 
       try{
-        localStorage.setItem('xummAccount', res.me.account);
+        localStorage.setItem('xummAccount', res.response.account);
       }catch(e){}
-
-      // mobile redirect fix
-      if (/iphone|android/i.test(navigator.userAgent)) {
-        window.location.href = "https://centerforcreators.com/nft-marketplace";
-      }
     }
 
   }catch(e){
@@ -583,8 +592,6 @@ async function connect(){
   }
 }
 
- var btn = document.getElementById('connectBtn');
-if(btn){ btn.addEventListener('click', connect); }
 
 </script>
 <script>
