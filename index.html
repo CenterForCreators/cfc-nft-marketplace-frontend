@@ -583,35 +583,6 @@ async function connect(){
   }
 }
 
-   const signin = await xumm.payload.createAndSubscribe({
-  txjson: { TransactionType: 'SignIn' },
-  options: {
-    return_url: {
-      web: 'https://centerforcreators.com/nft-marketplace',
-      app: 'https://centerforcreators.com/nft-marketplace'
-    }
-  }
-}, () => {});
-
-    if (signin?.created?.next) window.location.href = signin.created.next.always;
-    const res = await signin.resolved;
-    if (!res?.signed || !res?.response?.account){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Claim cancelled.'; if(spinner) spinner.style.display='none'; return; }
-    if (res.response.account !== window.connectedAccount){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Use the same wallet you connected.'; if(spinner) spinner.style.display='none'; return; }
-    const r = await fetch(CONFIG.FAUCET_ENDPOINT, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ payload_uuid: signin.created.uuid, address: window.connectedAccount })
-    });
-    const data = await r.json().catch(()=>({}));
-    var m=document.getElementById('claimMsg');
-    if (r.ok) m && (m.textContent='✅ 25 CFC sent! Check your wallet soon.');
-   else if (m) {
-  m.textContent = data?.error || 'Claim failed.';
-  setTimeout(()=>{ m.textContent=''; },5000);
-}
-  }catch(e){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Network error.'; }
-  if(spinner) spinner.style.display='none';
-  window.__cfcCaptchaPassed=false;
-}
  var btn = document.getElementById('connectBtn');
 if(btn){ btn.addEventListener('click', connect); }
 
