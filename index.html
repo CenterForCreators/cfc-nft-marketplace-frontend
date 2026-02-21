@@ -208,7 +208,8 @@
 <div class="brand">
 </div>
 
-  <button class="btn" id="connectBtn" onclick="try{ if(window.connect){connect()} }catch(e){}"><span id="addrBadge" style="margin-left:8px;opacity:0.9"></span>Connect Xaman Wallet</button><div id="emailInput" ...>
+  <button class="btn" id="connectBtn">
+<span id="addrBadge" style="margin-left:8px;opacity:0.9"></span>Connect Xaman Wallet</button><div id="emailInput" ...>
  
 </header>
 <!-- Injected: row (account + balances) -->
@@ -560,39 +561,6 @@ document.addEventListener('DOMContentLoaded', function(){
 <script>
 window.CFC = window.CFC||{};
 
- async function connect(){
-  try{
-    const signin = await xumm.payload.createAndSubscribe({
-      txjson: { TransactionType: 'SignIn' },
-      options: {
-        return_url: {
-          web: 'https://centerforcreators.com/nft-marketplace',
-          app: 'https://centerforcreators.com/nft-marketplace'
-        }
-      }
-    }, function(){});
-
-    if (signin?.created?.next?.always){
-      window.location.href = signin.created.next.always;
-    }
-
-    const res = await signin.resolved;
-
-    if (res?.signed && res?.response?.account){
-      window.connectedAccount = res.response.account;
-
-      try{
-        localStorage.setItem('xummAccount', res.response.account);
-      }catch(e){}
-    }
-
-  }catch(e){
-    var m=document.getElementById('claimMsg');
-    if(m) m.textContent='Connection cancelled.';
-  }
-}
-
-
 </script>
 <script>
 // Simple math CAPTCHA: digits 0–9, refresh each time
@@ -633,25 +601,6 @@ function checkCaptcha(){
   };
   document.addEventListener('DOMContentLoaded', regenCaptcha);
 
-  // Core actions
-  async function _connect(){
-    try{
-      if (typeof Xumm==='undefined' || !window.xumm){ alert('Wallet SDK loading, try again.'); return; }
-      const res = await xumm.authorize();
-      if (res?.me?.account){
-        var acct=document.getElementById('acct'); if(acct) acct.textContent=res.me.account;
-        alert('Wallet connected');
-      }else{
-        alert('Connection cancelled');
-      }
-    }catch(e){ console.error(e); alert('Could not connect'); }
-  }
- 
-      if(!r.ok) throw new Error('Faucet error');
-      alert('✅ 25 CFC sent!');
-      regenCaptcha();
-    }catch(e){ console.error(e); alert('Faucet request failed'); }
-  }
 
   // Force-bind by ID
   function tryBind(id, fn){
@@ -834,30 +783,6 @@ if (!window.connectedAccount) {
       }
       client.disconnect();
     }catch(e){ console.warn(e); }
-  }
-
-  async function doConnect(){
-    try{
-      if(!window.xumm){ alert('Xaman SDK not ready'); return; }
-      setStatus('Connecting…');
-      const r = await xumm.authorize();
-      const ping = await xumm.ping();
-      if(ping && ping?.account){ account = ping.account; }
-      if(!account && xumm?.user?.account) account = xumm.user.account;
-      if(account){
-        connected = true;
-        localStorage.setItem('xrpl_account', account);
-        showBar(); setStatus('Connected'); setAccount(account);
-        try{var _b=document.getElementById('connectBtn'); if(_b){ _b.textContent='Connected'; _b.disabled=false; }}catch(e){} connectXRPLAndLoadBalances(account);
-      }else{
-        setStatus('Not connected');
-        alert('Could not get account from Xaman');
-      }
-    }catch(e){
-      setStatus('Not connected');
-      console.error(e);
-      alert('Connect failed');
-    }
   }
 
   const connectBtn = gid('connectBtn');
@@ -1084,30 +1009,6 @@ if (!window.connectedAccount) {
     }
   }
 
-  async function connectXumm(){
-    try{
-      if(window.xumm && window.xumm.authorize){
-        const res = await window.xumm.authorize();
-        if(res && res.me && res.me.account){
-          connectedAccount = res.me.account;
-          if(connectBtn){ connectBtn.textContent = "Connected"; connectBtn.disabled = false; }
-          if(addrBadge){ addrBadge.textContent = connectedAccount; }
-          fetchBalances(connectedAccount);
-        }
-      }
-    }catch(e){
-      console.error(e);
-      toast && toast("Xaman connect failed");
-    }
-  }
-
-  if(connectBtn){
-    connectBtn.addEventListener('click', function(){
-      // If already connected, do nothing
-      if(connectedAccount){ return; }
-      connectXumm();
-    });
-  }
 
   // Provide a global for other handlers (Claim) to know connection
   window.__cfcConnectedAccount = () => connectedAccount;
@@ -1383,35 +1284,6 @@ if (!window.connectedAccount) {
     } catch(e) { console.error(e); }
   }
 
-  async function connectNow() {
-    try {
-      if (typeof ensureConnected === 'function') {
-        const acc = await ensureConnected();
-        if (acc) {
-          connectedAccount = acc;
-          localStorage.setItem('xummAccount', acc);
-          const el = document.getElementById('connectedAddress');
-          if (el) el.textContent = acc;
-          if (typeof fetchBalances === 'function') {
-            await fetchBalances(acc);
-          }
-        }
-      } else if (window.xumm && typeof xumm.authorize === 'function') {
-        const { me } = await xumm.authorize();
-        connectedAccount = me.account;
-        localStorage.setItem('xummAccount', connectedAccount);
-        const el = document.getElementById('connectedAddress');
-        if (el) el.textContent = connectedAccount;
-        if (typeof fetchBalances === 'function') {
-          await fetchBalances(connectedAccount);
-        }
-      }
-    } catch (e) {
-      console.error('Connect error', e);
-      const s = document.getElementById('claimStatus');
-      if (s) s.textContent = 'Connection failed. Please try again.';
-    }
-  }
 
   async function claim() {
     const s = document.getElementById('claimStatus');
@@ -1468,58 +1340,6 @@ if (!window.connectedAccount) {
     if (btn) btn.textContent = isR(a) ? 'Disconnect XAMAN Wallet' : 'Connect XAMAN Wallet';
   }
 
-  function connectToggle(){
-    var btn = gid('connect-wallet') || gid('connectXumm') || gid('xummConnect') || gid('connectBtn');
-    if (!btn) return;
-    var clone = btn.cloneNode(true);
-    btn.parentNode.replaceChild(clone, btn);
-    clone.addEventListener('click', async function(e){
-      e.preventDefault();
-      var a = acct();
-      if (isR(a)){
-        try{ localStorage.removeItem('xummAccount'); }catch(e){}
-        if (typeof window.connectedAccount !== 'undefined') window.connectedAccount = null;
-        updateWallet();
-        return;
-      }
-      try{
-        if (window.xumm && typeof window.xumm.authorize === 'function'){
-          // Enhanced full disconnect before returning
-          try{
-            if (window.xumm && typeof window.xumm.logout === 'function') {
-              await window.xumm.logout();
-            }
-          }catch(_){}
-          try{
-            // Clear any XUMM-related storage to force QR on reconnect
-            (function(){
-              try{
-                for (var i=0; i<localStorage.length; i++){
-                  var k = localStorage.key(i);
-                  if (/^xumm/i.test(k)) { localStorage.removeItem(k); i--; }
-                }
-              }catch(_){}
-              try{
-                for (var j=0; j<sessionStorage.length; j++){
-                  var s = sessionStorage.key(j);
-                  if (/^xumm/i.test(s)) { sessionStorage.removeItem(s); j--; }
-                }
-              }catch(_){}
-            })();
-          }catch(_){}
-
-          const { me } = await window.xumm.authorize();
-          if (me && me.account){
-            window.connectedAccount = me.account;
-            try{ localStorage.setItem('xummAccount', me.account); }catch(e){}
-            updateWallet();
-          }
-        } else {
-          alert('XUMM SDK not loaded.');
-        }
-      }catch(_){ alert('Wallet connection failed.'); }
-    });
-  }
 
   // Suppress redundant "connect wallet" alerts if already connected
   (function(){
@@ -2471,27 +2291,7 @@ window.getActiveWallet = function () {
   }
 </script>
 <script>
-(function(){
-  const btn = document.getElementById('connectBtn');
-  if (!btn) return;
 
-  // Remove ALL existing click handlers
-  const cleanBtn = btn.cloneNode(true);
-  btn.parentNode.replaceChild(cleanBtn, btn);
-
-  cleanBtn.addEventListener('click', async function(e){
-    e.preventDefault();
-    try{
-      if (!window.xumm) { alert('Xaman not ready'); return; }
-
-      const sub = await window.xumm.payload.createAndSubscribe({
-        txjson: { TransactionType: 'SignIn' },
-        options: {
-          return_url: {
-            web: 'https://centerforcreators.com/nft-marketplace',
-            app: 'https://centerforcreators.com/nft-marketplace'
-          }
-        }
       }, function(){});
 
       if (sub?.created?.next?.always) {
