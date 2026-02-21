@@ -608,23 +608,9 @@ function checkCaptcha(){
     var I=document.getElementById('capAns'); if(I) I.value='';
   };
   document.addEventListener('DOMContentLoaded', regenCaptcha);
-
-
-  // Force-bind by ID
-  function tryBind(id, fn){
-    var el=document.getElementById(id);
-    if (el && !el.onclick) el.onclick = fn;
-  }
- tryBind('connectBtn', connect);
-  tryBind('claimBtn', _claim);
-
-    });
-  }
-  bindByText('connect xaman', _connect);
-  bindByText('connect wallet', _connect);
-  bindByText('claim', _claim);
 })();
 </script>
+
 <script>
 async function payXRP(nftId) {
   const r = await fetch(
