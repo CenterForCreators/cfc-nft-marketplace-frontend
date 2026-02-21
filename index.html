@@ -480,40 +480,6 @@ document.addEventListener('DOMContentLoaded', () => {
 })
 </script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  try {
-    if (typeof newCaptcha !== 'function') {
-      window._a=0;window._b=0;
-      window.newCaptcha=function(){
-        _a=Math.floor(Math.random()*10);_b=Math.floor(Math.random()*10);
-        var A=document.getElementById('numA'),B=document.getElementById('numB');
-        if(A)A.textContent=_a;if(B)B.textContent=_b;
-        var I=document.getElementById('captchaInput'); if(I) I.value='';
-      };
-    }
-    const cb=document.getElementById('connectBtn');
-    if (cb && !cb.__bound){
-      cb.addEventListener('click', function(){
-        if (window.connect) return window.connect();
-        if (window.connectXumm) return window.connectXumm();
-        if (window.authorize) return window.authorize();
-        if (window.xumm && xumm.authorize) return xumm.authorize();
-      });
-      cb.__bound=true;
-    }
-    const qb=document.getElementById('claimBtn');
-    if (qb && !qb.__bound){
-      qb.addEventListener('click', function(){
-        if (window.claimFaucet) return window.claimFaucet();
-        if (window.claim) return window.claim();
-      });
-      qb.__bound=true;
-    }
-    if (document.getElementById('numA') || document.getElementById('captchaInput')) newCaptcha();
-  } catch(e){}
-});
-</script>
 <style>
  #cfc-cap-ovl {
   display: none !important;
@@ -651,35 +617,6 @@ async function payRLUSD(nftId) {
 
 <script>
     (function(){
-      function bind(id, fn){
-        var el = document.getElementById(id);
-        if (el && !el.__bound){ el.__bound = true; el.addEventListener('click', function(ev){ ev.preventDefault(); fn(); }); }
-      }
-
-     // ---- begin safe init (keeps wallet + claim working, no regressions) ----
-// Run wallet/core init immediately if your site defines it.
-if (typeof boot === 'function') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
-}
-// Delay ONLY the payment button wiring to help Chrome finish loading SDKs.
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => setTimeout(bindAll, 500));
-} else {
-  setTimeout(bindAll, 500);
-}
-try {
-  new MutationObserver(() => setTimeout(bindAll, 500))
-    .observe(document.documentElement, { childList: true, subtree: true });
-} catch(e) {}
-})();
-// ---- end safe init ----
-  </script>
-<script>
-    (function(){
       const form = document.getElementById('joinForm');
       if (!form) return;
       const emailEl = document.getElementById('joinEmail');
@@ -801,8 +738,47 @@ window.account = account;
   }
 
  const connectBtn = gid('connectBtn');
+
 if(connectBtn && !connectBtn.__wired){
   connectBtn.__wired = true;
+
+  connectBtn.addEventListener('click', async function(){
+
+    try{
+      if(!window.xumm || typeof window.xumm.authorize !== 'function'){
+        console.warn('Xaman SDK not ready');
+        return;
+      }
+
+      const res = await window.xumm.authorize();
+      const acct = res?.me?.account || res?.account;
+
+      if(!acct){
+        console.warn('Connection cancelled');
+        return;
+      }
+
+      account = acct;
+
+      try{
+        localStorage.setItem('xrpl_account', acct);
+      }catch(e){}
+
+      showBar();
+      setStatus('Connected');
+      setAccount(acct);
+
+      connectBtn.textContent = 'Connected';
+      connectXRPLAndLoadBalances(acct);
+
+      console.log('Connected wallet:', acct);
+
+    }catch(e){
+      console.error('Xaman connection failed', e);
+    }
+
+  });
+}
 
   connectBtn.addEventListener('click', async function(e){
     e.preventDefault();
