@@ -1083,7 +1083,7 @@ account = acct;
   function setConnected(addr){
     if(!isValidR(addr)) return;
     connectedAccount = addr;
-    try { sessionStorage.setItem("cfc_addr", addr); } catch(e){}
+   try { localStorage.setItem("xrpl_account", addr); } catch(e){}
     if(connectBtn){ connectBtn.textContent = "Connected"; connectBtn.disabled = false; }
     if(addrBadge){ addrBadge.textContent = addr; }
     fetchBalances(addr);
@@ -1120,7 +1120,12 @@ account = acct;
     connectBtn.addEventListener('click', function(){ if(!connectedAccount) connectXumm(); });
   }
 
-  try{ const prev = sessionStorage.getItem("cfc_addr"); if(isValidR(prev)) setConnected(prev); }catch(e){}
+try{
+  const prev = sessionStorage.getItem("cfc_addr")
+    || localStorage.getItem("xrpl_account")
+    || localStorage.getItem("xummAccount");
+  if(isValidR(prev)) setConnected(prev);
+}catch(e){}
 
   if(window.xumm && window.xumm.on){
     try{
