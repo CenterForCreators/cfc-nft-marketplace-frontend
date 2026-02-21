@@ -739,6 +739,25 @@ if (!window.connectedAccount) {
   CONFIG.XRPL_WSS        = CONFIG.XRPL_WSS        || 'wss://xrplcluster.com';
 
   var account = localStorage.getItem('xrpl_account') || '';
+ if(account){
+  window.account = account;
+
+  const btn = document.getElementById('connectBtn');
+  if(btn){
+    btn.textContent = 'Connected';
+  }
+
+  const status = document.getElementById('wb_status');
+  if(status){
+    status.textContent = 'Connected';
+  }
+
+  const addr = document.getElementById('wb_account');
+  if(addr){
+    addr.textContent = account;
+  }
+}
+
 window.account = account;
   let connected = false;
 
@@ -748,6 +767,7 @@ window.account = account;
   function setAccount(a){ if(wa){ wa.textContent = a||'—'; } }
   function setXrp(v){ if(wx){ wx.textContent = v; } }
   function setCfc(v){ if(wc){ wc.textContent = v; } }
+ 
 
   async function connectXRPLAndLoadBalances(acct){
     try{
