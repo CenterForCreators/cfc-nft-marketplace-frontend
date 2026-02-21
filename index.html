@@ -738,7 +738,8 @@ if (!window.connectedAccount) {
   CONFIG.CFC_ISSUER      = CONFIG.CFC_ISSUER      || '';
   CONFIG.XRPL_WSS        = CONFIG.XRPL_WSS        || 'wss://xrplcluster.com';
 
-  let account = localStorage.getItem('xrpl_account') || '';
+  var account = localStorage.getItem('xrpl_account') || '';
+window.account = account;
   let connected = false;
 
   const bar = gid('walletbar'), st = gid('wb_status'), wa = gid('wb_account'), wx = gid('wb_xrp'), wc = gid('wb_cfc'), wtrust = gid('wb_trust');
@@ -799,7 +800,8 @@ if(connectBtn && !connectBtn.__wired){
         return;
       }
 
-      account = acct;
+      window.account = account;
+account = acct;
       try{ localStorage.setItem('xrpl_account', account); }catch(_){}
 
       showBar(); setStatus('Connected'); setAccount(account);
