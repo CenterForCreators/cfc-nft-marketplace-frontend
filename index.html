@@ -186,10 +186,18 @@
     function toast(msg){ const t=$('#toast'); t.textContent=msg; show(t); setTimeout(()=>hide(t), 3500); }
   </script>
 <!-- Render-hosted SDKs -->
-<script 
-  onload="try{ window.xumm = new Xumm('eebd4c17-c3ef-435b-b891-89afb99e259e'); }catch(e){ console.error(e); }" 
-  src="https://cfc-nft-marketplace-frontend.onrender.com/sdk/xumm.min.js">
+<script src="https://xumm.app/assets/cdn/xumm.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function(){
+    if (typeof Xumm !== "undefined") {
+      window.xumm = new Xumm("eebd4c17-c3ef-435b-b891-89afb99e259e");
+      console.log("Xumm initialized");
+    } else {
+      console.error("Xumm SDK failed to load");
+    }
+  });
 </script>
+
 
 <script src="https://cfc-nft-marketplace-frontend.onrender.com/sdk/xrpl-latest-min.js"></script>
 
