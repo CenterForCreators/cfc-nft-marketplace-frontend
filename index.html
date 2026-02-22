@@ -901,12 +901,12 @@ async function doConnect(){
   if(claimStatus){ claimStatus.className='status'; claimStatus.textContent=''; }
   setTimeout(()=>connectXRPLAndLoadBalances(account), 8000);
 }
-        }else{
-          if (claimStatus){ 
-  claimStatus.className='status err'; 
-  claimStatus.textContent=''; 
+    else{
+  if(claimStatus){
+    claimStatus.className='status err';
+    claimStatus.textContent = (j && j.error) ? j.error : 'Already claimed.';
+  }
 }
-        }
       }catch(e){
         if(claimStatus){ claimStatus.className='status err'; claimStatus.textContent='Network error'; }
       }finally{
