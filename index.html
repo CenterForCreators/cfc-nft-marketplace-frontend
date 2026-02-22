@@ -897,17 +897,18 @@ async function doConnect(){
       if(claimSpin){ claimSpin.style.display='inline-block'; }
       try{
         const j = await postJson(CONFIG.FAUCET_ENDPOINT, { captcha_ok:true, account });
-        if(j && j.ok){
-         if(j && j.ok){
-  if(claimStatus){ claimStatus.className='status'; claimStatus.textContent=''; }
+       if(j && j.ok){
+  if(claimStatus){
+    claimStatus.className='status';
+    claimStatus.textContent='';
+  }
   setTimeout(()=>connectXRPLAndLoadBalances(account), 8000);
+}else{
+  if(claimStatus){
+    claimStatus.className='status err';
+    claimStatus.textContent = (j && j.error) ? j.error : '';
+  }
 }
-        }else{
-          if (claimStatus){ 
-  claimStatus.className='status err'; 
-  claimStatus.textContent=''; 
-}
-        }
       }catch(e){
         if(claimStatus){ claimStatus.className='status err'; claimStatus.textContent='Network error'; }
       }finally{
