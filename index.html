@@ -643,59 +643,7 @@ function checkCaptcha(){
   window.addEventListener('hashchange', function(){ try { newCaptcha(); } catch(e){} });
 })();
 </script>
-<script>
-(function(){
-  // Math captcha
-  let _a=0,_b=0; function rnd(){return Math.floor(Math.random()*10)}
-  window.regenCaptcha = window.regenCaptcha || function(){
-    _a=rnd(); _b=rnd();
-    var A=document.getElementById('capA'); if(A) A.textContent=_a;
-    var B=document.getElementById('capB'); if(B) B.textContent=_b;
-    var I=document.getElementById('capAns'); if(I) I.value='';
-  };
-  document.addEventListener('DOMContentLoaded', regenCaptcha);
 
-  // Core actions
-  async function _connect(){
-    try{
-      if (typeof Xumm==='undefined' || !window.xumm){ alert('Wallet SDK loading, try again.'); return; }
-      const res = await xumm.authorize();
-      if (res?.me?.account){
-        var acct=document.getElementById('acct'); if(acct) acct.textContent=res.me.account;
-        alert('Wallet connected');
-      }else{
-        alert('Connection cancelled');
-      }
-    }catch(e){ console.error(e); alert('Could not connect'); }
-  }
- 
-      if(!r.ok) throw new Error('Faucet error');
-      alert('✅ 25 CFC sent!');
-      regenCaptcha();
-    }catch(e){ console.error(e); alert('Faucet request failed'); }
-  }
-
-  // Force-bind by ID
-  function tryBind(id, fn){
-    var el=document.getElementById(id);
-    if (el && !el.onclick) el.onclick = fn;
-  }
- tryBind('connectBtn', connect);
-  tryBind('claimBtn', _claim);
-
-  // Fallback: bind by button text if IDs differ
-  function bindByText(txt, fn){
-    var btns=[...document.querySelectorAll('button')];
-    btns.forEach(b=>{
-      var t=(b.textContent||'').toLowerCase();
-      if (t.includes(txt) && !b.onclick){ b.onclick = fn; }
-    });
-  }
-  bindByText('connect xaman', _connect);
-  bindByText('connect wallet', _connect);
-  bindByText('claim', _claim);
-})();
-</script>
 <script>
 (function(){
   function alias(from, to){
@@ -879,30 +827,44 @@ if (!window.connectedAccount) {
       client.disconnect();
     }catch(e){ console.warn(e); }
   }
-
-  async function doConnect(){
-    try{
-      if(!window.xumm){ alert('Xaman SDK not ready'); return; }
-      setStatus('Connecting…');
-      const r = await xumm.authorize();
-      const ping = await xumm.ping();
-      if(ping && ping?.account){ account = ping.account; }
-      if(!account && xumm?.user?.account) account = xumm.user.account;
-      if(account){
-        connected = true;
-        localStorage.setItem('xrpl_account', account);
-        showBar(); setStatus('Connected'); setAccount(account);
-        try{var _b=document.getElementById('connectBtn'); if(_b){ _b.textContent='Connected'; _b.disabled=false; }}catch(e){} connectXRPLAndLoadBalances(account);
-      }else{
-        setStatus('Not connected');
-        alert('Could not get account from Xaman');
-      }
-    }catch(e){
-      setStatus('Not connected');
-      console.error(e);
-      alert('Connect failed');
+async function doConnect(){
+  try{
+    if(!window.xumm || !window.xumm.payload){
+      setStatus('Wallet: Disconnected');
+      return;
     }
+
+    setStatus('Connecting…');
+
+    const sub = await window.xumm.payload.createAndSubscribe({
+      txjson: { TransactionType: 'SignIn', SignIn: true },
+      options: { return_url: { web: location.href, app: location.href } }
+    }, function(){});
+
+    // Force open Xaman in-app browsers (LinkedIn/Facebook)
+    if (sub?.created?.next?.always){
+      window.location.href = sub.created.next.always;
+    }
+
+    const res = await sub.resolved;
+    const acct = res?.signed ? (res?.response?.account || null) : null;
+
+    if(!acct){
+      setStatus('Wallet: Disconnected');
+      return;
+    }
+
+    account = acct;
+    try{ localStorage.setItem('xrpl_account', account); }catch(e){}
+    showBar(); setStatus('Connected'); setAccount(account);
+    try{ var _b=document.getElementById('connectBtn'); if(_b){ _b.textContent='Connected'; _b.disabled=false; } }catch(e){}
+    await connectXRPLAndLoadBalances(account);
+
+  }catch(e){
+    console.error('Xaman connect error', e);
+    setStatus('Wallet: Disconnected');
   }
+}
 
   const connectBtn = gid('connectBtn');
   if(connectBtn && !connectBtn.__wired){
@@ -1269,170 +1231,7 @@ if (!window.connectedAccount) {
 })();
 </script>
 </div></div>
-<script>
-(function() {
-  // Configuration
-  const API_BASE = (typeof window.CFC_API_BASE !== 'undefined' && window.CFC_API_BASE) || "https://cfc-faucet.onrender.com";
-  const XUMM_API_KEY = "eebd4c17-c3ef-435b-b891-89afb99e259e";
 
-  // DOM refs
-  const connectBtn = document.getElementById('connectXaman') || document.querySelector('[data-connect-xaman]');
-  const addrSpan = document.getElementById('connectedAddress');
-  const xrpSpan = document.getElementById('xrpBalance');
-  const cfcSpan = document.getElementById('cfcBalance');
-  const claimBtn = document.getElementById('claimButton') || document.querySelector('[data-claim]');
-  const captchaInput = document.getElementById('captchaAnswer') || document.querySelector('[data-captcha-answer]');
-  const captchaA = document.getElementById('captchaA') || document.querySelector('[data-captcha-a]');
-  const captchaB = document.getElementById('captchaB') || document.querySelector('[data-captcha-b]');
-  const statusArea = document.getElementById('statusArea') || document.querySelector('[data-status]');
-
-  // Styling guarantee: do not change colors; only set states
-  function setStatus(msg) {
-    if (statusArea) { statusArea.textContent = msg; }
-    console.log(msg);
-  }
-
-  // XUMM SDK
-  let xumm;
-  let connectedAccount = null;
-
-  function initXumm() {
-    try {
-      // The SDK is served from /sdk/xumm.min.js on the backend domain; ensure it's loaded
-      if (typeof Xumm === 'undefined') {
-        console.warn('Xumm SDK not found on window. Make sure /sdk/xumm.min.js is included.');
-        return;
-      }
-      xumm = new Xumm(XUMM_API_KEY);
-      // Restore session if any
-      xumm.on('ready', () => {
-        setStatus('Xaman SDK ready');
-      });
-      xumm.on('success', () => {
-        // Authorization success
-        if (xumm?.user?.account) {
-          applyConnected(xumm.user.account);
-        }
-      });
-      xumm.on('retrieved', () => {
-        if (xumm?.user?.account) {
-          applyConnected(xumm.user.account);
-        }
-      });
-    } catch (e) {
-      console.error('Xumm init error:', e);
-    }
-  }
-
-  function truncate(addr) {
-    if (!addr) return '';
-    return addr.slice(0, 6) + '...' + addr.slice(-6);
-  }
-
-  async function refreshBalances(address) {
-    try {
-      if (!address) return;
-      const res = await fetch(API_BASE + '/api/balances?account=' + encodeURIComponent(address));
-      if (!res.ok) throw new Error('Balances fetch failed');
-      const data = await res.json();
-      if (typeof data.xrp !== 'undefined' && xrpSpan) xrpSpan.textContent = data.xrp;
-      if (typeof data.cfc !== 'undefined' && cfcSpan) cfcSpan.textContent = data.cfc;
-    } catch (e) {
-      console.warn('Balance update failed', e);
-    }
-  }
-
-  function applyConnected(address) {
-    connectedAccount = address;
-    if (addrSpan) addrSpan.textContent = address || 'Not connected';
-    // Also show a short form if there's an element for it
-    const shortAddrEl = document.getElementById('connectedAddressShort');
-    if (shortAddrEl) shortAddrEl.textContent = truncate(address);
-    // Enable claim now that we have an account
-    if (claimBtn) claimBtn.removeAttribute('disabled');
-    refreshBalances(address);
-  }
-
-  async function handleConnect() {
-    try {
-      // If already connected, just ensure UI is up to date
-      if (connectedAccount && xumm?.user?.account) {
-        applyConnected(connectedAccount);
-        return;
-      }
-      setStatus('Connecting wallet...');
-      await xumm.authorize();
-      // `success` event will update UI
-    } catch (e) {
-      setStatus('Connection canceled or failed.');
-    }
-  }
-
-  function generateCaptchaIfNeeded() {
-    if (!captchaA || !captchaB || !captchaInput) return;
-    // Assume the numbers are already rendered by backend/page; if not, set defaults
-    const a = parseInt(captchaA.textContent || captchaA.value || '0', 10);
-    const b = parseInt(captchaB.textContent || captchaB.value || '0', 10);
-    if (Number.isNaN(a) || Number.isNaN(b)) {
-      // Generate simple fallback numbers
-      const aa = Math.floor(1 + Math.random() * 9);
-      const bb = Math.floor(1 + Math.random() * 9);
-      captchaA.textContent = String(aa);
-      captchaB.textContent = String(bb);
-    }
-  }
-
-  async function handleClaim() {
-    try {
-      if (!connectedAccount || connectedAccount === 'undefined' || connectedAccount === null) {
-        setStatus('Please connect your wallet first.');
-        if (connectBtn) connectBtn.focus();
-        return;
-      }
-      // Validate captcha
-      if (!captchaA || !captchaB || !captchaInput) {
-        setStatus('Captcha not found.');
-        return;
-      }
-      const a = parseInt(captchaA.textContent || captchaA.value || '0', 10);
-      const b = parseInt(captchaB.textContent || captchaB.value || '0', 10);
-      const ans = parseInt(captchaInput.value || '0', 10);
-      if (ans !== (a + b)) {
-        setStatus('Captcha incorrect. Please try again.');
-        captchaInput.focus();
-        return;
-      }
-      setStatus('Requesting faucet...');
-      const res = await fetch(API_BASE + '/api/faucet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ account: connectedAccount, captcha_ok: true })
-      });
-      if (!res.ok) {
-        const t = await res.text();
-        throw new Error(t || 'Faucet failed');
-      }
-      const data = await res.json().catch(()=>({}));
-      setStatus('Faucet sent: 25 CFC. Check your wallet.');
-      // Refresh balances after a short delay
-      setTimeout(() => refreshBalances(connectedAccount), 1500);
-    } catch (e) {
-      console.error(e);
-      setStatus('Faucet error: ' + (e.message || 'Unknown error'));
-    }
-  }
-
-  // Bind events
-  document.addEventListener('DOMContentLoaded', () => {
-    initXumm();
-    generateCaptchaIfNeeded();
-    if (connectBtn) connectBtn.addEventListener('click', handleConnect);
-    if (claimBtn) claimBtn.addEventListener('click', handleClaim);
-    // Disable claim until connected
-    if (claimBtn) claimBtn.setAttribute('disabled', 'disabled');
-  });
-})();
-</script>
 <script>
 (() => {
   let connectedAccount = null;
@@ -1704,16 +1503,6 @@ if (!window.connectedAccount) {
 </script>
 </html>
 <!-- ✅ Helper: Hide unwanted text -->
-<script>
-function cleanTexts(){
-  document.querySelectorAll('body *').forEach(function(n){
-    var t = (n.innerText || n.textContent || '').trim();
-    if (/invalid account/i.test(t) || /^server:\s*waiting for url\.?$/i.test(t)){
-      n.style.display = 'none';
-    }
-  });
-}
-</script>
 
 <!-- bootstrap: join + claim + divider (non-destructive) -->
 <script>
