@@ -909,13 +909,18 @@ async function doConnect(){
     claimStatus.textContent = (j && j.error) ? j.error : '';
   }
 }
-      }catch(e){
-        if(claimStatus){ claimStatus.className='status err'; claimStatus.textContent='Network error'; }
+            }catch(e){
+        if(claimStatus){
+          claimStatus.className='status err';
+          claimStatus.textContent='Network error';
+        }
       }finally{
-        if(claimSpin){ claimSpin.style.display='none'; }
+        if(claimSpin){
+          claimSpin.style.display='none';
+        }
       }
     });
-  }
+  } 
 
   const joinEmail = gid('joinEmail') || gid('emailInput');
   const joinBtn = gid('joinBtn') || gid('emailSubmit');
