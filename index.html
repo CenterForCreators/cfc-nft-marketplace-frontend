@@ -4,6 +4,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -892,19 +893,21 @@ async function doConnect(){
         alert('Connect Xaman first so we know your account.');
         return;
       }
-     if(j && j.ok){
-  if(claimStatus){
-    claimStatus.className='status';
-    claimStatus.textContent='';
-  }
+      if(claimStatus){ claimStatus.className='status warn'; claimStatus.textContent='Sending…'; }
+      if(claimSpin){ claimSpin.style.display='inline-block'; }
+      try{
+        const j = await postJson(CONFIG.FAUCET_ENDPOINT, { captcha_ok:true, account });
+        if(j && j.ok){
+         if(j && j.ok){
+  if(claimStatus){ claimStatus.className='status'; claimStatus.textContent=''; }
   setTimeout(()=>connectXRPLAndLoadBalances(account), 8000);
 }
-else{
-  if(claimStatus){
-    claimStatus.className='status err';
-    claimStatus.textContent = (j && j.error) ? j.error : 'Already claimed.';
-  }
+        }else{
+          if (claimStatus){ 
+  claimStatus.className='status err'; 
+  claimStatus.textContent=''; 
 }
+        }
       }catch(e){
         if(claimStatus){ claimStatus.className='status err'; claimStatus.textContent='Network error'; }
       }finally{
