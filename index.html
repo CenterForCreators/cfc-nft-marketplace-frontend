@@ -842,9 +842,21 @@ async function doConnect(){
     }, function(){});
 
     // Force open Xaman in-app browsers (LinkedIn/Facebook)
-    if (sub?.created?.next?.always){
-      window.location.href = sub.created.next.always;
-    }
+   if (sub?.created?.next?.always){
+
+  const link = sub.created.next.always;
+
+  // Detect LinkedIn in-app browser
+  const ua = navigator.userAgent || '';
+  const isLinkedIn = ua.includes('LinkedIn');
+
+  if (isLinkedIn) {
+    // Force open in external browser (break out of LinkedIn)
+    window.open(link, '_blank');
+  } else {
+    window.location.href = link;
+  }
+}
 
     const res = await sub.resolved;
     const acct = res?.signed ? (res?.response?.account || null) : null;
