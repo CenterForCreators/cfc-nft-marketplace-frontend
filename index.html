@@ -575,7 +575,7 @@ async function connect(){
       }
     }, function(){});
 
-    if (sub?.created?.next) window.location.href = sub.created.next.always;
+    if (sub?.created?.next) window.top.location.href = sub.created.next.always;
 
     const res = await sub.resolved;
     if (res?.signed && res?.response?.account){
