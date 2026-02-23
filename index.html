@@ -879,75 +879,69 @@ async function doConnect(){
     return r.json();
   }
 
-  if(claimBtn && !claimBtn.__wired){
-    claimBtn.__wired = true;
-    claimBtn.addEventListener('click', async function(){
-      if(capQ && capA){
-        const ans = parseInt(capA.value||'NaN',10);
-        if(isNaN(ans) || ans !== (a+b)){
-          if(claimStatus){ claimStatus.className='status err'; claimStatus.textContent='Wrong math answer'; }
-          return;
+ if (claimBtn && !claimBtn.__wired) {
+  claimBtn.__wired = true;
+
+  claimBtn.addEventListener('click', async function () {
+
+    if (capQ && capA) {
+      const ans = parseInt(capA.value || 'NaN', 10);
+      if (isNaN(ans) || ans !== (a + b)) {
+        if (claimStatus) {
+          claimStatus.className = 'status err';
+          claimStatus.textContent = 'Wrong math answer';
         }
-      }
-      if(!account){
-        alert('Connect Xaman first so we know your account.');
         return;
       }
-      if(claimStatus){ claimStatus.className='status warn'; claimStatus.textContent='Sending…'; }
-      if(claimSpin){ claimSpin.style.display='inline-block'; }
-      try{
-        const j = await postJson(CONFIG.FAUCET_ENDPOINT, { captcha_ok:true, account });
-       if(j && j.ok){
-  if(claimStatus){
-    claimStatus.className='status';
-    claimStatus.textContent='';
-  }
-  setTimeout(()=>connectXRPLAndLoadBalances(account), 8000);
-}else{
-  if(claimStatus){
-    claimStatus.className='status err';
-    claimStatus.textContent = (j && j.error) ? j.error : '';
-  }
+    }
+
+    if (!account) {
+      alert('Connect Xaman first so we know your account.');
+      return;
+    }
+
+    if (claimStatus) {
+      claimStatus.className = 'status warn';
+      claimStatus.textContent = 'Sending…';
+    }
+
+    if (claimSpin) {
+      claimSpin.style.display = 'inline-block';
+    }
+
+    try {
+      const j = await postJson(CONFIG.FAUCET_ENDPOINT, {
+        captcha_ok: true,
+        account
+      });
+
+      if (j && j.ok) {
+        if (claimStatus) {
+          claimStatus.className = 'status';
+          claimStatus.textContent = '';
+        }
+        setTimeout(() => connectXRPLAndLoadBalances(account), 8000);
+      } else {
+        if (claimStatus) {
+          claimStatus.className = 'status err';
+          claimStatus.textContent = (j && j.error) ? j.error : '';
+        }
+      }
+
+    } catch (e) {
+      if (claimStatus) {
+        claimStatus.className = 'status err';
+        claimStatus.textContent = 'Network error';
+      }
+
+    } finally {
+      if (claimSpin) {
+        claimSpin.style.display = 'none';
+      }
+    }
+
+  });
 }
-            }catch(e){
-        if(claimStatus){
-          claimStatus.className='status err';
-          claimStatus.textContent='Network error';
-        }
-      }finally{
-        if(claimSpin){
-          claimSpin.style.display='none';
-        }
-      }
-    });
-  } 
-
-  const joinEmail = gid('joinEmail') || gid('emailInput');
-  const joinBtn = gid('joinBtn') || gid('emailSubmit');
-  const joinStatus = gid('joinStatus') || gid('emailMsg');
-  if(joinBtn && !joinBtn.__wired){
-    joinBtn.__wired = true;
-    joinBtn.addEventListener('click', async function(){
-      const email = (joinEmail && joinEmail.value || '').trim();
-      if(!email || !/\\S+@\\S+\\.\\S+/.test(email)){
-        if(joinStatus){ joinStatus.className='status err'; joinStatus.textContent='Enter a valid email'; }
-        return;
-      }
-      if(joinStatus){ joinStatus.className='status warn'; joinStatus.textContent='Submitting…'; }
-      try{
-        const j = await postJson(CONFIG.JOIN_ENDPOINT, { email });
-        if(j && j.ok){
-          if(joinStatus){ joinStatus.className='status ok'; joinStatus.textContent='🎉 You’re in!'; }
-          if(joinEmail) joinEmail.value='';
-        }else{
-          if(joinStatus){ joinStatus.className='status err'; joinStatus.textContent=(j&&j.error)||'Join failed'; }
-        }
-      }catch(e){
-        if(joinStatus){ joinStatus.className='status err'; joinStatus.textContent='Network error'; }
-      }
-    });
-  }
-
   
   if(wtrust && !wtrust.__wired){
     wtrust.__wired = true;
