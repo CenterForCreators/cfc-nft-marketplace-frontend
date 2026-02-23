@@ -5,6 +5,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -575,7 +576,7 @@ async function connect(){
       }
     }, function(){});
 
-  // DO NOT manually redirect when using createAndSubscribe
+   // DO NOT manually redirect when using createAndSubscribe
 
     const res = await sub.resolved;
     if (res?.signed && res?.response?.account){
@@ -898,8 +899,10 @@ async function doConnect(){
       try{
         const j = await postJson(CONFIG.FAUCET_ENDPOINT, { captcha_ok:true, account });
         if(j && j.ok){
-          if(claimStatus){ claimStatus.className='status ok'; claimStatus.textContent='✅ 25 CFC sent (pending ledger)…'; }
-          setTimeout(()=>connectXRPLAndLoadBalances(account), 8000);
+         if(j && j.ok){
+  if(claimStatus){ claimStatus.className='status'; claimStatus.textContent=''; }
+  setTimeout(()=>connectXRPLAndLoadBalances(account), 8000);
+}
         }else{
           if (claimStatus){ 
   claimStatus.className='status err'; 
