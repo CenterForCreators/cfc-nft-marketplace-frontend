@@ -575,7 +575,7 @@ async function connect(){
       }
     }, function(){});
 
-    if (sub?.created?.next) window.top.location.href = sub.created.next.always;
+  // DO NOT manually redirect when using createAndSubscribe
 
     const res = await sub.resolved;
     if (res?.signed && res?.response?.account){
