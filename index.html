@@ -582,12 +582,12 @@ async function connect(){
     if (res?.signed && res?.response?.account){
       window.connectedAccount = res.response.account;
       sessionStorage.setItem('connectedAccount', res.response.account);
+      sessionStorage.setItem('xummSignedIn', '1');
       var a=document.getElementById('address'); if(a) a.textContent = res.response.account;
       var m=document.getElementById('claimMsg'); if(m) m.textContent='';
     }
   }catch(e){ var m=document.getElementById('claimMsg'); if(m) m.textContent='Connection cancelled.'; }
 }
-
 </script>
 <script>
 // Simple math CAPTCHA: digits 0–9, refresh each time
@@ -2354,6 +2354,26 @@ window.getActiveWallet = function () {
 
 })();
 </script>
+document.addEventListener('DOMContentLoaded', function(){
 
+  const saved = sessionStorage.getItem('connectedAccount');
+  const wasSigned = sessionStorage.getItem('xummSignedIn');
+
+  if(saved && wasSigned){
+    window.connectedAccount = saved;
+
+    const btn = document.getElementById('connectBtn');
+    const badge = document.getElementById('addrBadge');
+
+    if(btn){
+      btn.textContent = 'Connected';
+    }
+
+    if(badge){
+      badge.textContent = saved;
+    }
+  }
+
+});
 </body>
 </html>
