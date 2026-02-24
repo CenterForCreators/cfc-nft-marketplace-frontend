@@ -2355,26 +2355,6 @@ window.getActiveWallet = function () {
 
 })();
 </script>
-document.addEventListener('DOMContentLoaded', function(){
 
-  const saved = sessionStorage.getItem('connectedAccount');
-  const wasSigned = sessionStorage.getItem('xummSignedIn');
-
-  if(saved && wasSigned){
-    window.connectedAccount = saved;
-
-    const btn = document.getElementById('connectBtn');
-    const badge = document.getElementById('addrBadge');
-
-    if(btn){
-      btn.textContent = 'Connected';
-    }
-
-    if(badge){
-      badge.textContent = saved;
-    }
-  }
-
-});
 </body>
 </html>
