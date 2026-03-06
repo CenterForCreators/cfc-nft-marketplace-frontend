@@ -123,6 +123,7 @@
   border-radius: 12px;
   display: block;
   min-height: 200px;
+  content-visibility: auto;
 }
   
     input[type="email"], input[type="text"]{width:100%;outline:none;padding:10px;border-radius:10px;border:1px solid #2a3a60;background:#0e1527;color:#e8f0ff}
@@ -2216,7 +2217,7 @@ if (!window.connectedAccount) {
 
     grid.innerHTML = orders.map(o => `
       <div class="card">
-      <img class="nft-img" src="https://gateway.pinata.cloud/ipfs/${o.image_cid}" crossorigin="anonymous">
+      <img class="nft-img" loading="lazy" src="https://gateway.pinata.cloud/ipfs/${o.image_cid}" crossorigin="anonymous">
         <h3>${o.name}</h3>
         <div class="muted">Status: ${o.status}</div>
 
